@@ -1,4 +1,6 @@
 package io.github.brckjr.ppmp.api.risk;
 
-public interface RiskApi {
+import io.github.brckjr.ppmp.api.risk.dto.RiskMetricsDto;
+
+public interface RiskApi extends BaseApi<RiskMetricsDto, String> {
 }

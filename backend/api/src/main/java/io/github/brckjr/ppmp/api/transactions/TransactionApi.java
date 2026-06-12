@@ -1,4 +1,6 @@
 package io.github.brckjr.ppmp.api.transactions;
 
-public interface TransactionApi {
+import io.github.brckjr.ppmp.api.transactions.dto.TransactionDto;
+
+public interface TransactionApi extends BaseCrudApi<TransactionDto, String> {
 }

@@ -1,4 +1,6 @@
 package io.github.brckjr.ppmp.api.performance;
 
-public interface PerformanceApi {
+import io.github.brckjr.ppmp.api.performance.dto.PerformanceDto;
+
+public interface PerformanceApi extends BaseApi<PerformanceDto, String> {
 }
