@@ -1,0 +1,91 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: create-instrument-prices-table
+      author: kilian.brickl
+      changes:
+        - createTable:
+            schemaName: ${ppmp.schema}
+            tableName: instrument_prices
+            columns:
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_instrument_prices
+              - column:
+                  name: instrument_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: open
+                  type: numeric(15, 4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: high
+                  type: numeric(15, 4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: low
+                  type: numeric(15, 4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: close
+                  type: numeric(15, 4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: adj_close
+                  type: numeric(15, 4)
+              - column:
+                  name: volume
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source
+                  type: varchar(50)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${ppmp.schema}
+            baseTableName: instrument_prices
+            baseColumnNames: instrument_uuid
+            referencedTableSchemaName: ${ppmp.schema}
+            referencedTableName: instrument
+            referencedColumnNames: uuid
+            constraintName: fk_instrument_prices_instrument_id
+            onDelete: CASCADE
+
+        - createIndex:
+            schemaName: ${ppmp.schema}
+            tableName: instrument_prices
+            indexName: idx_prices_date
+            columns:
+              - column:
+                  name: price_date

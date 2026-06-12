@@ -1,2 +1,2 @@
-# ppm-platform
+# ppmp
 Personal Portfolio Management Platform

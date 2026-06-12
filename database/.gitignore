@@ -1,0 +1,29 @@
+# --- Security / Credentials ---
+*.env
+.env*
+/env/
+
+# --- Liquibase / Database Runtime ---
+liquibase.log
+*.bak
+bin/
+
+# --- IDEs / Editors ---
+.idea/
+*.iml
+cmake-build-*/
+
+# VS Code
+.vscode/
+.history/
+
+# macOS
+.DS_Store
+
+# --- Docker ---
+.docker/
+
+# --- github-ci-local ---
+.github-ci-local
+gl-secret-detection-report.json
+

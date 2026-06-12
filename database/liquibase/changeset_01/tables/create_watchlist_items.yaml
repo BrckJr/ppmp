@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-watchlist-item-table
+      author: kilian.brickl
+      changes:
+        - createTable:
+            schemaName: ${ppmp.schema}
+            tableName: watchlist_item
+            columns:
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_watchlist_item
+              - column:
+                  name: watchlist_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: instrument_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notes
+                  type: varchar(255)
+              - column:
+                  name: priority
+                  type: integer
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${ppmp.schema}
+            baseTableName: watchlist_item
+            baseColumnNames: watchlist_uuid
+            referencedTableSchemaName: ${ppmp.schema}
+            referencedTableName: watchlist
+            referencedColumnNames: uuid
+            constraintName: fk_watchlist_item_user_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${ppmp.schema}
+            baseTableName: watchlist_item
+            baseColumnNames: instrument_uuid
+            referencedTableSchemaName: ${ppmp.schema}
+            referencedTableName: instrument
+            referencedColumnNames: uuid
+            constraintName: fk_watchlist_item_instrument_id
+
