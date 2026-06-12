@@ -1,4 +1,4 @@
-package io.github.brckjr.ppmp.api.holding.dto;
+package io.github.brckjr.ppmp.api.holdings.dto;
 
 import io.github.brckjr.ppmp.domain.enums.AssetClass;
 import io.github.brckjr.ppmp.domain.enums.Region;
