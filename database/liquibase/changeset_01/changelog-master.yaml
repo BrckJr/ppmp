@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - include:
+      file: tables/create_table_user.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_instrument.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_portfolio.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_transaction.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_watchlist.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_instrument_prices.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: tables/create_watchlist_items.yaml
+      relativeToChangelogFile: true

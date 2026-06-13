@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="database" />
+        <module name="react" />
+        <module name="backend-domain" />
+        <module name="backend-api" />
+      </profile>
+      <profile name="Annotation profile for Backend" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+        </processorPath>
+        <module name="backend-app" />
+        <module name="backend-persistence" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="backend-bootstrap" target="21" />
+      <module name="backend-business" target="21" />
+      <module name="backend-core" target="21" />
+      <module name="backend-model" target="21" />
+      <module name="worklog-base-app" target="1.8" />
+      <module name="worklog-base-business" target="1.8" />
+      <module name="worklog-base-model" target="1.8" />
+      <module name="worklog-base-persistence" target="1.8" />
+      <module name="worklog-bff" target="1.5" />
+      <module name="worklog-bff-app" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-instrument-table
+      author: kilian.brickl
+      changes:
+        - createTable:
+            schemaName: ${ppmp.schema}
+            tableName: instrument
+            columns:
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_instrument
+              - column:
+                  name: type
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: ticker
+                  type: varchar(10)
+              - column:
+                  name: currency
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: isin
+                  type: varchar(12)
+              - column:
+                  name: exchange
+                  type: varchar(100)
+              - column:
+                  name: country
+                  type: varchar(40)
+              - column:
+                  name: region
+                  type: varchar(40)
+              - column:
+                  name: sector
+                  type: varchar(40)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+

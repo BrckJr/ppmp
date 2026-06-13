@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-portfolio-table
+      author: kilian.brickl
+      changes:
+        - createTable:
+            schemaName: ${ppmp.schema}
+            tableName: portfolio
+            columns:
+              - column:
+                  name: uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_portfolio
+              - column:
+                  name: user_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: varchar(255)
+              - column:
+                  name: base_currency
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${ppmp.schema}
+            baseTableName: portfolio
+            baseColumnNames: user_uuid
+            referencedTableSchemaName: ${ppmp.schema}
+            referencedTableName: user
+            referencedColumnNames: uuid
+            constraintName: fk_portfolio_user_id
+            onDelete: CASCADE

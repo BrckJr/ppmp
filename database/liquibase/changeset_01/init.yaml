@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - property:
+      name: ppmp.schema
+      value: ppmp
+
+  - changeSet:
+      id: init-vector-extension
+      author: kilian.brickl
+      changes:
+        - sql:
+            sql: |
+              CREATE EXTENSION IF NOT EXISTS vector;
+
+  - changeSet:
+      id: create-initial-schema
+      author: kilian.brickl
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS ${ppmp.schema};

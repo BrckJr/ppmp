@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.brckjr</groupId>
+    <artifactId>database</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>Database</name>
+
+    <properties>
+        <!-- General -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- External -->
+        <liquibase.version>4.33.0</liquibase.version>
+        <postgresql.version>42.7.7</postgresql.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+    </dependencies>
+
+    <!-- Set-up for local db migration only! -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+
+                <!-- JDBC driver for the plugin itself -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <changeLogFile>liquibase/changelog-master.yaml</changeLogFile>
+                    <url>${postgresdb.url}</url>
+                    <username>${postgresdb.user}</username>
+                    <password>${postgresdb.password}</password>
+                    <driver>org.postgresql.Driver</driver>
+                </configuration>
+
+                <!-- Bind Liquibase Migration to compile phase -->
+                <executions>
+                    <execution>
+                        <id>liquibase-update</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>update</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
