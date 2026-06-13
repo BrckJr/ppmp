@@ -1,9 +1,14 @@
 package io.github.brckjr.ppmp.api.performance.dto;
 
+import io.github.brckjr.ppmp.domain.enums.Currency;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record EquityPointDto(
-        String date,
+        LocalDate date,
         BigDecimal value,
-        BigDecimal benchmark
-) {}
+        BigDecimal benchmarkValue,
+        Currency currency
+) {
+}

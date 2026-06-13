@@ -1,8 +1,10 @@
 package io.github.brckjr.ppmp.api.performance.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record DrawdownPointDto(
-        String date,
+        LocalDate date,
         BigDecimal dd
-) {}
+) {
+}
