@@ -2,17 +2,13 @@ package io.github.brckjr.ppmp.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Entity
 @Table(name = "user", schema = "ppmp")
-public class UserEntity extends BaseEntity{
+public class UserEntity extends BaseEntity {
 
     @Size(max = 320)
     @NotNull

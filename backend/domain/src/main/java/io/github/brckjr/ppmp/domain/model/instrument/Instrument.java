@@ -77,40 +77,43 @@ public class Instrument extends BaseModel {
 
     // --- Getters ---
 
-    public String type() {
+    public String getType() {
         return type;
     }
 
-    public String currency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public Optional<String> name() {
+    public Optional<String> getName() {
         return Optional.ofNullable(name);
     }
 
-    public Optional<String> ticker() {
+    public Optional<String> getTicker() {
         return Optional.ofNullable(ticker);
     }
 
-    public Optional<String> isin() {
+
+    public Optional<String> getIsin() {
         return Optional.ofNullable(isin);
     }
 
-    public Optional<String> exchange() {
+
+    public Optional<String> getExchange() {
         return Optional.ofNullable(exchange);
     }
 
-    public Optional<String> country() {
+    public Optional<String> getCountry() {
         return Optional.ofNullable(country);
     }
 
-    public Optional<String> region() {
+    public Optional<String> getRegion() {
         return Optional.ofNullable(region);
     }
 
-    public Optional<String> sector() {
+    public Optional<String> getSector() {
         return Optional.ofNullable(sector);
     }
+
 
 }

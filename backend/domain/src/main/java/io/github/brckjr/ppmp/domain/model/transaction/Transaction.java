@@ -78,22 +78,22 @@ public class Transaction extends BaseModel {
 
 
     // --- Getters ---
-    public Portfolio portfolio() { return portfolio; }
+    public Portfolio getPortfolio() { return portfolio; }
 
-    public Optional<Instrument> instrument() { return Optional.ofNullable(instrument); }
+    public Optional<Instrument> getInstrument() { return Optional.ofNullable(instrument); }
 
-    public Optional<String> transactionType() { return Optional.ofNullable(transactionType); }
+    public Optional<String> getTransactionType() { return Optional.ofNullable(transactionType); }
 
-    public OffsetDateTime timestamp() { return timestamp; }
+    public OffsetDateTime getTimestamp() { return timestamp; }
 
-    public Optional<Double> unitprice() { return Optional.ofNullable(unitprice); }
+    public Optional<Double> getUnitPrice() { return Optional.ofNullable(unitprice); }
 
-    public Optional<Double> quantity() { return Optional.ofNullable(quantity); }
+    public Optional<Double> getQuantity() { return Optional.ofNullable(quantity); }
 
-    public Double grossAmount() { return grossAmount; }
+    public Double getGrossAmount() { return grossAmount; }
 
-    public String currency() { return currency; }
+    public String getCurrency() { return currency; }
 
-    public Optional<String> comment() { return Optional.ofNullable(comment); }
+    public Optional<String> getComment() { return Optional.ofNullable(comment); }
 
 }

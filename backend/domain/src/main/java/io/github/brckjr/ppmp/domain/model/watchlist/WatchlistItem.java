@@ -31,15 +31,16 @@ public class WatchlistItem extends BaseModel {
 
 
     // --- Getters ---
-    public Optional<Instrument> instrument() {
+    public Optional<Instrument> getInstrument() {
         return Optional.ofNullable(instrument);
     }
 
-    public Optional<String> notes() {
+    public Optional<String> getNotes() {
         return Optional.ofNullable(notes);
     }
 
-    public Optional<Integer> priority() {
+    public Optional<Integer> getPriority() {
         return Optional.ofNullable(priority);
     }
+
 }

@@ -1,23 +1,26 @@
 package io.github.brckjr.ppmp.persistence.mapper;
 
-import io.github.brckjr.ppmp.domain.model.instrument.Instrument;
 import io.github.brckjr.ppmp.domain.model.watchlist.WatchlistItem;
-import io.github.brckjr.ppmp.persistence.entity.InstrumentEntity;
 import io.github.brckjr.ppmp.persistence.entity.WatchlistItemEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.ObjectFactory;
+import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "jakarta", uses = {InstrumentMapper.class})
+@Mapper(componentModel = "cdi")
 public interface WatchlistItemMapper extends BaseMapper<WatchlistItem, WatchlistItemEntity> {
 
-    // Explicit bridge so MapStruct delegates Instrument conversions to InstrumentMapper
-    Instrument mapInstrumentEntityToDomain(InstrumentEntity entity);
+    private InstrumentMapper instrumentMapper() {
+        return new InstrumentMapper() {
+        };
+    }
 
-    @ObjectFactory
-    default WatchlistItem createDomain(WatchlistItemEntity entity) {
+    @Override
+    default WatchlistItem toModel(WatchlistItemEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         return WatchlistItem.reconstitute(
-                mapInstrumentEntityToDomain(entity.getInstrument()),
+                instrumentMapper().toModel(entity.getInstrument()),
                 entity.getNotes(),
                 entity.getPriority()
         );
@@ -25,6 +28,28 @@ public interface WatchlistItemMapper extends BaseMapper<WatchlistItem, Watchlist
 
     @Override
     @Mapping(target = "watchlist", ignore = true)
-        // Handled upstream by WatchlistMapper's @AfterMapping lifecycle hook
-    WatchlistItemEntity toEntity(WatchlistItem domain);
+    default WatchlistItemEntity toEntity(WatchlistItem domain) {
+        if (domain == null) {
+            return null;
+        }
+        WatchlistItemEntity entity = new WatchlistItemEntity();
+        entity.setId(domain.getId());
+        entity.setCreatedAt(domain.getCreatedAt());
+        entity.setUpdatedAt(domain.getUpdatedAt());
+        entity.setInstrument(instrumentMapper().toEntity(domain.getInstrument().orElse(null)));
+        entity.setNotes(domain.getNotes().orElse(null));
+        entity.setPriority(domain.getPriority().orElse(null));
+        return entity;
+    }
+
+    @Override
+    default void updateEntityFromModel(WatchlistItem domain, @MappingTarget WatchlistItemEntity entity) {
+        if (domain == null || entity == null) {
+            return;
+        }
+        entity.setUpdatedAt(domain.getUpdatedAt());
+        entity.setInstrument(instrumentMapper().toEntity(domain.getInstrument().orElse(null)));
+        entity.setNotes(domain.getNotes().orElse(null));
+        entity.setPriority(domain.getPriority().orElse(null));
+    }
 }

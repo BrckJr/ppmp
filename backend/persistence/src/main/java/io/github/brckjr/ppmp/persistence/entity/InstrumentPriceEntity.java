@@ -7,10 +7,15 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "instrument_prices", schema = "ppmp")
+@Table(
+        name = "instrument_prices",
+        schema = "ppmp",
+        indexes = {
+                @Index(name = "idx_instrument_prices_instrument_uuid", columnList = "instrument_uuid")
+        }
+)
 public class InstrumentPriceEntity extends BaseEntity {
 
-    @MapsId("instrumentUuid")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "instrument_uuid", nullable = false)
     private InstrumentEntity instrument;

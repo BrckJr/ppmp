@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Entity
 @Table(name = "watchlist_item", schema = "ppmp")
 public class WatchlistItemEntity extends BaseEntity {
@@ -28,13 +25,21 @@ public class WatchlistItemEntity extends BaseEntity {
     @Column(name = "priority")
     private Integer priority;
 
-    public WatchlistEntity getWatchlist() { return watchlist; }
+    public WatchlistEntity getWatchlist() {
+        return watchlist;
+    }
 
-    public void setWatchlist(WatchlistEntity watchlist) { this.watchlist = watchlist; }
+    public void setWatchlist(WatchlistEntity watchlist) {
+        this.watchlist = watchlist;
+    }
 
-    public InstrumentEntity getInstrument() { return instrument; }
+    public InstrumentEntity getInstrument() {
+        return instrument;
+    }
 
-    public void setInstrument(InstrumentEntity instrument) { this.instrument = instrument; }
+    public void setInstrument(InstrumentEntity instrument) {
+        this.instrument = instrument;
+    }
 
     public String getNotes() {
         return notes;

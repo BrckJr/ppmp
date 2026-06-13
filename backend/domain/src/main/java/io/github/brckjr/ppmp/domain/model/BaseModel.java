@@ -21,9 +21,9 @@ public abstract class BaseModel {
         this.updatedAt = Objects.requireNonNull(updatedAt, "UpdatedAt cannot be null");
     }
 
-    public UUID id() { return id; }
-    public OffsetDateTime createdAt() { return createdAt; }
-    public OffsetDateTime updatedAt() { return updatedAt; }
+    public UUID getId() { return id; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
 
     protected void touch(OffsetDateTime now) {
         this.updatedAt = Objects.requireNonNull(now);

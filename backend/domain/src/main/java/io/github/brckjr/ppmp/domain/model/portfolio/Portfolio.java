@@ -54,19 +54,20 @@ public class Portfolio extends BaseModel {
 
     // --- Getters ---
 
-    public User user() {
+    public User getUser() {
         return user;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
-    public Optional<String> description() {
+    public Optional<String> getDescription() {
         return Optional.ofNullable(description);
     }
 
-    public String baseCurrency() {
+    public String getBaseCurrency() {
         return baseCurrency;
     }
+
 }

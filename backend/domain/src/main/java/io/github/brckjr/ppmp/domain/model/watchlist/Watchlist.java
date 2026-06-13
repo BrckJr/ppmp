@@ -36,18 +36,18 @@ public final class Watchlist extends BaseModel {
 
     // --- Getters ---
 
-    public User user() { return user; }
+    public User getUser() { return user; }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
-    public Optional<String> description() {
+    public Optional<String> getDescription() {
         return Optional.ofNullable(description);
     }
 
-    public List<WatchlistItem> items() {
+    public List<WatchlistItem> getItems() {
         return Collections.unmodifiableList(items);
     }
-}
 
+}

@@ -82,39 +82,40 @@ public class InstrumentPrice extends BaseModel {
 
     // --- Getters ---
 
-    public Instrument instrument() {
+    public Instrument getInstrument() {
         return instrument;
     }
 
-    public BigDecimal open() {
+    public BigDecimal getOpen() {
         return open;
     }
 
-    public BigDecimal high() {
+    public BigDecimal getHigh() {
         return high;
     }
 
-    public BigDecimal low() {
+    public BigDecimal getLow() {
         return low;
     }
 
-    public BigDecimal close() {
+    public BigDecimal getClose() {
         return close;
     }
 
-    public Optional<BigDecimal> adjClose() {
+    public Optional<BigDecimal> getAdjClose() {
         return Optional.ofNullable(adjClose);
     }
 
-    public Long volume() {
+    public Long getVolume() {
         return volume;
     }
 
-    public String currency() {
+    public String getCurrency() {
         return currency;
     }
 
-    public Optional<String> source() {
+    public Optional<String> getSource() {
         return Optional.ofNullable(source);
     }
+
 }

@@ -41,19 +41,28 @@ public class User extends BaseModel {
         return email;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public String username() {
         return username;
     }
 
-    public Optional<String> firstName() {
+    public String getUsername() {
+        return username;
+    }
+
+    public Optional<String> getFirstName() {
         return Optional.ofNullable(firstName);
     }
 
-    public Optional<String> lastName() {
+    public Optional<String> getLastName() {
         return Optional.ofNullable(lastName);
     }
 
-    public Optional<String> userStatus() {
+    public Optional<String> getUserStatus() {
         return Optional.ofNullable(userStatus);
     }
+
 }
