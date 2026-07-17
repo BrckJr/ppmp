@@ -6,7 +6,7 @@ export type ClientOptions = {
 
 export type AllocationSliceDto = {
     name?: string;
-    value?: number;
+    percentage?: number;
 };
 
 export type AnalystRating = 'STRONG_BUY' | 'BUY' | 'HOLD' | 'SELL';
@@ -16,16 +16,8 @@ export type AssetClass = 'STOCKS' | 'ETFS' | 'BONDS' | 'CASH' | 'CRYPTO';
 export type Currency = 'EUR' | 'USD' | 'YEN';
 
 export type DashboardDto = {
-    portfolioValue?: number;
-    portfolioValuePct?: number;
-    dailyPL?: number;
-    dailyPLPct?: number;
-    totalReturn?: number;
-    totalReturnPct?: number;
-    annualizedReturnPct?: number;
-    cashPosition?: number;
-    totalInvested?: number;
-    equityCurve?: Array<EquityPointDto>;
+    kpis?: KpiMetricsDto;
+    portfolioValueCurve?: Array<EquityPointDto>;
     allocationByAssetClass?: Array<AllocationSliceDto>;
     allocationBySector?: Array<AllocationSliceDto>;
     allocationByRegion?: Array<AllocationSliceDto>;
@@ -39,7 +31,6 @@ export type DrawdownPointDto = {
 export type EquityPointDto = {
     date?: LocalDate;
     value?: number;
-    benchmarkValue?: number;
     currency?: Currency;
 };
 
@@ -74,6 +65,17 @@ export type HoldingDetailDto = {
 
 export type HoldingsDto = {
     holdings?: Array<HoldingDetailDto>;
+};
+
+export type KpiMetricsDto = {
+    totalPortfolioValue?: number;
+    totalPortfolioReturnPct?: number;
+    dailyTotalPortfolioPL?: number;
+    dailyTotalPortfolioPLPct?: number;
+    totalPortfolioGain?: number;
+    totalPortfolioAnnualizedReturn?: number;
+    totalPortfolioCashPosition?: number;
+    totalPortfolioInitialInvested?: number;
 };
 
 export type LocalDate = string;

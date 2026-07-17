@@ -8,66 +8,66 @@ import java.util.Optional;
 
 public class Portfolio extends BaseModel {
 
-    private final User user;
-    private final String name;
-    private final String description;
-    private final String baseCurrency;
+  private final User user;
+  private final String name;
+  private final String description;
+  private final String baseCurrency;
 
 
-    private Portfolio(
-            User user,
-            String name,
-            String description,
-            String baseCurrency
-    ) {
-        super();
-        this.user = user;
-        this.name = name;
-        this.description = description;
-        this.baseCurrency = baseCurrency;
-    }
+  private Portfolio(
+      User user,
+      String name,
+      String description,
+      String baseCurrency
+  ) {
+    super();
+    this.user = user;
+    this.name = name;
+    this.description = description;
+    this.baseCurrency = baseCurrency;
+  }
 
-    public static Portfolio create(
-            User user,
-            String name,
-            String description,
-            String baseCurrency
-    ) {
-        Objects.requireNonNull(user, "Portfolio user cannot be null");
-        Objects.requireNonNull(name, "Portfolio name cannot be null");
-        Objects.requireNonNull(baseCurrency, "Portfolio base currency cannot be null");
+  public static Portfolio create(
+      User user,
+      String name,
+      String description,
+      String baseCurrency
+  ) {
+    Objects.requireNonNull(user, "Portfolio user cannot be null");
+    Objects.requireNonNull(name, "Portfolio name cannot be null");
+    Objects.requireNonNull(baseCurrency, "Portfolio base currency cannot be null");
 
-        return new Portfolio(user, name, description, baseCurrency);
-    }
+    return new Portfolio(user, name, description, baseCurrency);
+  }
 
-    public static Portfolio reconstitute(
-            User user,
-            String name,
-            String description,
-            String baseCurrency
-    ) {
-        return new Portfolio(user, name, description, baseCurrency);
-    }
+  public static Portfolio reconstitute(
+      User user,
+      String name,
+      String description,
+      String baseCurrency
+  ) {
+    return new Portfolio(user, name, description, baseCurrency);
+  }
 
-    // --- Domain Behaviors ---
+  // --- Domain Behaviors ---
 
 
-    // --- Getters ---
+  // --- Getters ---
 
-    public User getUser() {
-        return user;
-    }
+  public User getUser() {
+    return user;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public String getBaseCurrency() {
-        return baseCurrency;
-    }
+  public String getBaseCurrency() {
+    return baseCurrency;
+  }
 
 }

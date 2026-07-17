@@ -9,15 +9,15 @@ import java.util.UUID;
 
 public interface BaseRepository<D extends BaseModel> {
 
-    Optional<D> findById(UUID id);
+  Optional<D> findById(UUID id);
 
-    List<D> findAll();
+  List<D> findAll();
 
-    D create(D dto);
+  D persist(D dto);
 
-    D update(UUID uuid, D dto);
+  D update(UUID uuid, D dto);
 
-    void deleteById(UUID id);
+  void deleteById(UUID id);
 
-    long count();
+  long count();
 }

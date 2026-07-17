@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="JpaBuddyIdeaProjectConfig">
-    <option name="reLastEntityCreationPackage" value="backend/persistence/src/main/java/io/github/brckjr/ppmp/persistence/entity" />
-    <option name="reverseEngineeringLastDbConnectionId" value="e979d08f-cc29-4c28-826e-9aba1fb46313__ppmp_ppmp" />
-  </component>
-</project>

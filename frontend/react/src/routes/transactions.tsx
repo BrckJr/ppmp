@@ -1,11 +1,11 @@
-import { useMemo, useState, useEffect } from "react";
-import { ArrowDownLeft, ArrowUpRight, Coins, Plus, Wallet } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDownLeft, ArrowUpRight, Coins, Wallet } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { KpiCard } from "../components/KpiCard";
-import { Button } from "../components/ui/button";
+import { TransactionDialog } from "../components/TransactionDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { cn } from "../lib/utils";
-import { formatCurrencyPrecise, totalGain, transactions, type TxType } from "../lib/portfolio-data";
+import { formatCurrencyPrecise, totalGain, transactions as initialTransactions, type Transaction, type TxType } from "../lib/portfolio-data";
 
 const TYPE_BADGE: Record<TxType, string> = {
   Buy: "bg-accent/15 text-accent",
@@ -17,23 +17,24 @@ const TYPE_BADGE: Record<TxType, string> = {
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState<"all" | TxType>("all");
+  const [txs, setTxs] = useState<Transaction[]>(initialTransactions);
   
   // Set window tab title on client mount
   useEffect(() => {
     document.title = "Transactions — Meridian";
   }, []);
 
-  const rows = useMemo(() => transactions.filter((t) => filter === "all" || t.type === filter), [filter]);
+  const rows = useMemo(() => txs.filter((t) => filter === "all" || t.type === filter), [filter, txs]);
 
-  const realized = transactions.filter((t) => t.type === "Sell").reduce((s, t) => s + t.amount * 0.08, 0);
-  const dividends = transactions.filter((t) => t.type === "Dividend").reduce((s, t) => s + t.amount, 0);
+  const realized = txs.filter((t) => t.type === "Sell").reduce((s, t) => s + t.amount * 0.08, 0);
+  const dividends = txs.filter((t) => t.type === "Dividend").reduce((s, t) => s + t.amount, 0);
 
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader 
         title="Transactions" 
         subtitle="All activity, realized P/L and tax lots" 
-        actions={<Button size="sm"><Plus className="mr-1 h-4 w-4" />New transaction</Button>} 
+        actions={<TransactionDialog onCreate={(transaction) => setTxs((current) => [transaction, ...current])} />} 
       />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">

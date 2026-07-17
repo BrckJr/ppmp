@@ -1,5 +1,4 @@
 databaseChangeLog:
-
   - changeSet:
       id: create-transaction-table
       author: kilian.brickl
@@ -15,67 +14,55 @@ databaseChangeLog:
                     nullable: false
                     primaryKey: true
                     primaryKeyName: pk_transaction
+
               - column:
-                  name: portfolio_uuid
-                  type: uuid
-                  constraints:
-                    nullable: false
-              - column:
-                  name: instrument_uuid
-                  type: uuid
+                  name: ticker
+                  type: varchar(4)
+
               - column:
                   name: transaction_type
                   type: varchar(20)
+                  constraints:
+                    nullable: false
+
               - column:
                   name: timestamp
                   type: timestamp
                   constraints:
                     nullable: false
+
               - column:
                   name: unit_price
-                  type: float
+                  type: decimal(19,6)
+
               - column:
                   name: quantity
-                  type: float
+                  type: decimal(19,6)
+
               - column:
                   name: gross_amount
-                  type: float
+                  type: decimal(19,6)
                   constraints:
                     nullable: false
+
               - column:
                   name: currency
                   type: varchar(3)
                   constraints:
                     nullable: false
+
               - column:
                   name: comment
                   type: varchar(255)
+
               - column:
                   name: created_at
                   type: timestamp
                   constraints:
                     nullable: false
+
               - column:
                   name: updated_at
                   type: timestamp
                   constraints:
                     nullable: false
-
-        - addForeignKeyConstraint:
-            baseTableSchemaName: ${ppmp.schema}
-            baseTableName: transaction
-            baseColumnNames: portfolio_uuid
-            referencedTableSchemaName: ${ppmp.schema}
-            referencedTableName: portfolio
-            referencedColumnNames: uuid
-            constraintName: fk_transaction_portfolio_id
-            onDelete: CASCADE
-
-        - addForeignKeyConstraint:
-            baseTableSchemaName: ${ppmp.schema}
-            baseTableName: transaction
-            baseColumnNames: instrument_uuid
-            referencedTableSchemaName: ${ppmp.schema}
-            referencedTableName: instrument
-            referencedColumnNames: uuid
-            constraintName: fk_transaction_instrument_id
