@@ -3,7 +3,7 @@ import { Wallet, TrendingUp, Activity, PiggyBank, Coins, Percent } from "lucide-
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area, Legend } from "recharts";
 import { KpiCard } from "../components/KpiCard";
 import { PageHeader } from "../components/PageHeader";
-import { getDashboard } from "../api/generated/sdk.gen";
+import { getApiDashboard } from "../api/generated/sdk.gen";
 import type { DashboardDto } from "../api/generated/types.gen";
 import { formatCurrency, formatPercent } from "../lib/portfolio-data";
 
@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
     async function loadDashboard() {
       try {
-        const { data, error } = await getDashboard();
+        const { data, error } = await getApiDashboard();
         if (error) throw error;
         setData(data ?? null);
       } catch (e) {
