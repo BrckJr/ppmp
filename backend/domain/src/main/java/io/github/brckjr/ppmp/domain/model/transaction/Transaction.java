@@ -14,7 +14,6 @@ public class Transaction extends BaseModel {
 
   private final OffsetDateTime timestamp;
   private final TransactionType transactionType;
-  // TODO: Change the instrument to a reference to an instrument object
   private final String ticker;
   private final BigDecimal quantity;
   private final BigDecimal unitPrice;
@@ -25,7 +24,7 @@ public class Transaction extends BaseModel {
   private Transaction(
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String instrument,
+      String ticker,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -35,7 +34,7 @@ public class Transaction extends BaseModel {
     super();
     this.timestamp = timestamp;
     this.transactionType = transactionType;
-    this.ticker = instrument;
+    this.ticker = ticker;
     this.unitPrice = unitPrice;
     this.quantity = quantity;
     this.grossAmount = grossAmount;
@@ -49,7 +48,7 @@ public class Transaction extends BaseModel {
       OffsetDateTime updatedAt,
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String instrument,
+      String ticker,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -59,7 +58,7 @@ public class Transaction extends BaseModel {
     super(id, createdAt, updatedAt);
     this.timestamp = timestamp;
     this.transactionType = transactionType;
-    this.ticker = instrument;
+    this.ticker = ticker;
     this.unitPrice = unitPrice;
     this.quantity = quantity;
     this.grossAmount = grossAmount;
@@ -70,7 +69,7 @@ public class Transaction extends BaseModel {
   public static Transaction create(
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String instrument,
+      String ticker,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -78,11 +77,10 @@ public class Transaction extends BaseModel {
       String comment
   ) {
     Objects.requireNonNull(timestamp, "Timestamp cannot be null");
-    Objects.requireNonNull(instrument, "Instrument cannot be null");
     Objects.requireNonNull(currency, "Currency cannot be null");
     Objects.requireNonNull(grossAmount, "Gross Amount cannot be null");
     Objects.requireNonNull(transactionType, "Transaction Type cannot be null");
-    return new Transaction(timestamp, transactionType, instrument, unitPrice, quantity, grossAmount, currency, comment);
+    return new Transaction(timestamp, transactionType, ticker, unitPrice, quantity, grossAmount, currency, comment);
   }
 
   public static Transaction reconstitute(
@@ -91,7 +89,7 @@ public class Transaction extends BaseModel {
       OffsetDateTime updatedAt,
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String instrument,
+      String ticker,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -105,14 +103,13 @@ public class Transaction extends BaseModel {
     Objects.requireNonNull(currency, "Currency cannot be null");
     Objects.requireNonNull(grossAmount, "Gross Amount cannot be null");
     Objects.requireNonNull(transactionType, "Transaction Type cannot be null");
-    Objects.requireNonNull(instrument, "Instrument cannot be null");
     return new Transaction(
         id,
         createdAt,
         updatedAt,
         timestamp,
         transactionType,
-        instrument,
+        ticker,
         unitPrice,
         quantity,
         grossAmount,

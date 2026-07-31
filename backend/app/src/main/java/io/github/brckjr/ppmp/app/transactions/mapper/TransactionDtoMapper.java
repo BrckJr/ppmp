@@ -9,31 +9,34 @@ import org.mapstruct.ReportingPolicy;
 public interface TransactionDtoMapper {
 
   default Transaction toDomain(TransactionDto dto) {
+    if (dto == null) {
+      return null;
+    }
 
     return Transaction.create(
-        dto.timestamp(),
-        dto.type(),
-        dto.ticker(),
-        dto.quantity(),
-        dto.unitPrice(),
-        dto.grossAmount(),
-        dto.currency(),
-        dto.comment()
+      dto.timestamp(),
+      dto.type(),
+      dto.ticker(),
+      dto.unitPrice(),
+      dto.quantity(),
+      dto.grossAmount(),
+      dto.currency(),
+      dto.comment()
     );
   }
 
   default TransactionDto toDto(Transaction domain) {
 
     return new TransactionDto(
-        domain.getId(),
-        domain.getTimestamp(),
-        domain.getTransactionType(),
-        domain.getTicker(),
-        domain.getQuantity().orElse(null),
-        domain.getUnitPrice().orElse(null),
-        domain.getGrossAmount(),
-        domain.getCurrency(),
-        domain.getComment().orElse(null)
+      domain.getId(),
+      domain.getTimestamp(),
+      domain.getTransactionType(),
+      domain.getTicker(),
+      domain.getQuantity().orElse(null),
+      domain.getUnitPrice().orElse(null),
+      domain.getGrossAmount(),
+      domain.getCurrency(),
+      domain.getComment().orElse(null)
     );
   }
 }

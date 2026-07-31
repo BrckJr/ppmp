@@ -5,11 +5,13 @@ import io.github.brckjr.ppmp.api.transactions.dto.TransactionDto;
 import io.github.brckjr.ppmp.api.transactions.dto.TransactionMetricsDto;
 import io.github.brckjr.ppmp.app.transactions.mapper.TransactionDtoMapper;
 import io.github.brckjr.ppmp.common.enums.TransactionType;
+import io.github.brckjr.ppmp.domain.model.transaction.TransactionMetrics;
 import io.github.brckjr.ppmp.domain.service.transactions.TransactionService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,12 +29,14 @@ public class TransactionApp implements TransactionApi {
 
   @Override
   public List<TransactionDto> getAllTransactions(TransactionType type, int limit, int offset) {
-    return service.getAllTransactions().stream().map(mapper::toDto).toList();
+    return service.getAllTransactions(type, limit, offset).stream().map(mapper::toDto).toList();
   }
 
   @Override
   public TransactionDto getTransactionById(UUID id) {
-    return null;
+    return service.getTransactionById(id)
+        .map(mapper::toDto)
+        .orElseThrow(() -> new NotFoundException("Transaction not found: " + id));
   }
 
   @Override
@@ -42,19 +46,24 @@ public class TransactionApp implements TransactionApi {
 
   @Override
   public void deleteTransaction(UUID id) {
-
+    if (!service.deleteTransaction(id)) {
+      throw new NotFoundException("Transaction not found: " + id);
+    }
   }
 
   @Override
   public TransactionMetricsDto getTransactionMetrics(String period) {
-
-    // TODO: Rewrite this function for a proper call to the service.
-    return new TransactionMetricsDto(
-      BigDecimal.ZERO,
-      BigDecimal.ZERO,
-      BigDecimal.ZERO,
-      "USD"
-    );
+    try {
+      TransactionMetrics metrics = service.getTransactionMetrics(period);
+      return new TransactionMetricsDto(
+          metrics.totalDividends(),
+          metrics.netCapitalInflow(),
+          metrics.totalVolume(),
+          metrics.currency().name()
+      );
+    } catch (IllegalArgumentException ex) {
+      throw new BadRequestException(ex.getMessage(), ex);
+    }
   }
 
 }
