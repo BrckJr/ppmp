@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RootLayout from "./routes/__root";
-import IndexPage from "./routes/index";
+import DashboardPage from "./routes/dashboard";
 import WatchlistPage from "./routes/watchlist";
 import TransactionsPage from "./routes/transactions";
 import RiskPage from "./routes/risk";
@@ -21,7 +21,7 @@ ReactDOM.createRoot(rootElement).render(
     <BrowserRouter>
       <Routes>
         <Route element={<RootLayout />}>
-          <Route path="/" element={<IndexPage />} />
+          <Route path="/" element={<DashboardPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/risk" element={<RiskPage />} />

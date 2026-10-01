@@ -15,6 +15,7 @@
         <module>app</module>
         <module>domain</module>
         <module>persistence</module>
+        <module>common</module>
     </modules>
 
     <properties>
@@ -29,7 +30,7 @@
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
         <jpastreamer.version>3.0.3.Final</jpastreamer.version>
         <immutables.version>2.12.0</immutables.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
         <jandex.version>3.1.6</jandex.version>
         <artifactregistry-maven-wagon.version>2.2.5</artifactregistry-maven-wagon.version>
@@ -38,6 +39,8 @@
         <dependency-check.version>12.2.0</dependency-check.version>
         <jacoco.version>0.8.13</jacoco.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <junit5.version>5.13.4</junit5.version>
+        <assertj.version>3.27.7</assertj.version>
 
         <!-- Miscellaneous -->
 
@@ -100,6 +103,21 @@
                 <version>${jetbrains.annotations.version}</version>
                 <scope>compile</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

@@ -5,33 +5,34 @@ import io.github.brckjr.ppmp.api.holdings.dto.HoldingDetailDto;
 import io.github.brckjr.ppmp.api.holdings.dto.HoldingsDto;
 import io.github.brckjr.ppmp.app.holdings.mapper.HoldingDetailDtoMapper;
 import io.github.brckjr.ppmp.app.holdings.mapper.HoldingsDtoMapper;
-import io.github.brckjr.ppmp.domain.service.holding.PortfolioService;
+import io.github.brckjr.ppmp.domain.service.portfolio.PortfolioService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.PathParam;
-import org.mapstruct.factory.Mappers;
-
-import java.util.UUID;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class HoldingsApp implements HoldingsApi {
 
-    private final PortfolioService service;
-    private final HoldingsDtoMapper holdingsMapper = Mappers.getMapper(HoldingsDtoMapper.class);
-    private final HoldingDetailDtoMapper holdingDetailMapper = Mappers.getMapper(HoldingDetailDtoMapper.class);
+  private final PortfolioService service;
+  private final HoldingsDtoMapper holdingsMapper;
+  private final HoldingDetailDtoMapper holdingDetailMapper;
 
-    @Inject
-    public HoldingsApp(PortfolioService service) {
-        this.service = service;
-    }
+  @Inject
+  public HoldingsApp(PortfolioService service, HoldingsDtoMapper holdingsMapper, HoldingDetailDtoMapper holdingDetailMapper) {
+    this.service = service;
+    this.holdingsMapper = holdingsMapper;
+    this.holdingDetailMapper = holdingDetailMapper;
+  }
 
-    @Override
-    public HoldingsDto getHoldings() {
-        return holdingsMapper.toDto(service.getHoldings());
-    }
+  @Override
+  public HoldingsDto getHoldings() {
+    return holdingsMapper.toDto(service.getHoldings());
+  }
 
-    @Override
-    public HoldingDetailDto getHolding(@PathParam("id") UUID id) {
-        return holdingDetailMapper.toDto(service.getHolding(id));
-    }
+  @Override
+  public HoldingDetailDto getHolding(String ticker) {
+    return service.getHolding(ticker)
+        .map(holdingDetailMapper::toDto)
+        .orElseThrow(NotFoundException::new);
+  }
 }

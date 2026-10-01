@@ -1,121 +1,110 @@
 package io.github.brckjr.ppmp.persistence.entity;
 
+import io.github.brckjr.ppmp.common.enums.Currency;
+import io.github.brckjr.ppmp.common.enums.TransactionType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "transaction", schema = "ppmp")
 public class TransactionEntity extends BaseEntity {
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "portfolio_uuid", nullable = false)
-    private PortfolioEntity portfolio;
+  @Column(name = "ticker", length = 10)
+  private String ticker;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "instrument_uuid", nullable = true)
-    private InstrumentEntity instrument;
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "transaction_type", nullable = false, length = 20)
+  private TransactionType transactionType;
 
-    @Size(max = 20)
-    @Column(name = "transaction_type", length = 20)
-    private String transactionType;
+  @NotNull
+  @Column(name = "timestamp", nullable = false)
+  private OffsetDateTime timestamp;
 
-    @NotNull
-    @Column(name = "timestamp", nullable = false)
-    private OffsetDateTime timestamp;
+  @Column(name = "unit_price", precision = 19, scale = 6)
+  private BigDecimal unitPrice;
 
-    @Column(name = "unit_price")
-    private Double unitPrice;
+  @Column(name = "quantity", precision = 19, scale = 6)
+  private BigDecimal quantity;
 
-    @Column(name = "quantity")
-    private Double quantity;
+  @NotNull
+  @Column(name = "gross_amount", nullable = false, precision = 19, scale = 6)
+  private BigDecimal grossAmount;
 
-    @NotNull
-    @Column(name = "gross_amount", nullable = false)
-    private Double grossAmount;
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "currency", nullable = false, length = 3)
+  private Currency currency;
 
-    @Size(max = 3)
-    @NotNull
-    @Column(name = "currency", nullable = false, length = 3)
-    private String currency;
+  @Size(max = 255)
+  @Column(name = "comment")
+  private String comment;
 
-    @Size(max = 255)
-    @Column(name = "comment")
-    private String comment;
+  public String getTicker() {
+    return ticker;
+  }
 
-    public PortfolioEntity getPortfolio() {
-        return portfolio;
-    }
+  public void setTicker(String ticker) {
+    this.ticker = ticker;
+  }
 
-    public void setPortfolio(PortfolioEntity portfolio) {
-        this.portfolio = portfolio;
-    }
+  public TransactionType getTransactionType() {
+    return transactionType;
+  }
 
-    public InstrumentEntity getInstrument() {
-        return instrument;
-    }
+  public void setTransactionType(TransactionType transactionType) {
+    this.transactionType = transactionType;
+  }
 
-    public void setInstrument(InstrumentEntity instrument) {
-        this.instrument = instrument;
-    }
+  public OffsetDateTime getTimestamp() {
+    return timestamp;
+  }
 
-    public String getTransactionType() {
-        return transactionType;
-    }
+  public void setTimestamp(OffsetDateTime timestamp) {
+    this.timestamp = timestamp;
+  }
 
-    public void setTransactionType(String transactionType) {
-        this.transactionType = transactionType;
-    }
+  public BigDecimal getUnitPrice() {
+    return unitPrice;
+  }
 
-    public OffsetDateTime getTimestamp() {
-        return timestamp;
-    }
+  public void setUnitPrice(BigDecimal unitPrice) {
+    this.unitPrice = unitPrice;
+  }
 
-    public void setTimestamp(OffsetDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+  public BigDecimal getQuantity() {
+    return quantity;
+  }
 
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
+  public void setQuantity(BigDecimal quantity) {
+    this.quantity = quantity;
+  }
 
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
-    }
+  public BigDecimal getGrossAmount() {
+    return grossAmount;
+  }
 
-    public Double getQuantity() {
-        return quantity;
-    }
+  public void setGrossAmount(BigDecimal grossAmount) {
+    this.grossAmount = grossAmount;
+  }
 
-    public void setQuantity(Double quantity) {
-        this.quantity = quantity;
-    }
+  public Currency getCurrency() {
+    return currency;
+  }
 
-    public Double getGrossAmount() {
-        return grossAmount;
-    }
+  public void setCurrency(Currency currency) {
+    this.currency = currency;
+  }
 
-    public void setGrossAmount(Double grossAmount) {
-        this.grossAmount = grossAmount;
-    }
+  public String getComment() {
+    return comment;
+  }
 
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 }

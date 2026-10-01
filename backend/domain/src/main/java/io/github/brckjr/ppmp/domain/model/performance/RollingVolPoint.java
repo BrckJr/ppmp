@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record RollingVolPoint(
-        LocalDate date,
-        BigDecimal volatility
-) {}
+    LocalDate date,
+    BigDecimal volatility
+) {
+}

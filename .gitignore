@@ -1,0 +1,61 @@
+# --- Security / Credentials ---
+env/*.env
+*.env
+.env*
+
+# --- Liquibase / Database Runtime ---
+liquibase.log
+*.bak
+bin/
+
+# --- IDEs / Editors ---
+.idea/
+*.iml
+target/
+.settings/
+*.classpath
+*.factorypath
+*.project
+*.versionsBackup
+*.log
+ObjectStore/
+PutObjectStoreDirHere/
+dependency-reduced-pom.xyml
+
+# --- VS Code ---
+.vscode/
+.history/
+
+# --- macOS ---
+.DS_Store
+
+# --- Docker ---
+.docker/
+
+# --- github-ci-local ---
+.github-ci-local
+gl-secret-detection-report.json
+
+# --- Logs ---
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# --- Editor directories and files ---
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+

@@ -6,22 +6,21 @@ import io.github.brckjr.ppmp.app.dashboard.mapper.DashboardDtoMapper;
 import io.github.brckjr.ppmp.domain.service.dashboard.DashboardService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.mapstruct.factory.Mappers;
 
 @ApplicationScoped
 public class DashboardApp implements DashboardApi {
 
-    private final DashboardService service;
-    private final DashboardDtoMapper mapper = Mappers.getMapper(DashboardDtoMapper.class);
+  private final DashboardService service;
+  private final DashboardDtoMapper mapper;
 
-    @Inject
-    public DashboardApp(DashboardService service) {
-        this.service = service;
-    }
+  @Inject
+  public DashboardApp(DashboardService service, DashboardDtoMapper mapper) {
+    this.service = service;
+    this.mapper = mapper;
+  }
 
-    @Override
-    public DashboardDto getDashboard() {
-        return mapper.toDto(service.getDashboard());
-    }
-
+  @Override
+  public DashboardDto getDashboard() {
+    return mapper.toDto(service.getDashboard());
+  }
 }

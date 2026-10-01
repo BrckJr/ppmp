@@ -195,15 +195,15 @@ export interface Transaction {
 }
 
 export const transactions: Transaction[] = [
-  { id: "t1", date: "2026-05-28", type: "Buy", ticker: "NVDA", shares: 5, price: 862.3, amount: -4311.5 },
+  { id: "t1", date: "2026-05-28", type: "Buy", ticker: "NVDA", shares: 5, price: 862.3, amount: 4311.5 },
   { id: "t2", date: "2026-05-15", type: "Dividend", ticker: "AAPL", amount: 10.8 },
   { id: "t3", date: "2026-05-02", type: "Deposit", amount: 2500 },
   { id: "t4", date: "2026-04-22", type: "Sell", ticker: "XOM", shares: 10, price: 116.4, amount: 1164 },
-  { id: "t5", date: "2026-04-10", type: "Buy", ticker: "ASML", shares: 3, price: 920.5, amount: -2761.5 },
+  { id: "t5", date: "2026-04-10", type: "Buy", ticker: "ASML", shares: 3, price: 920.5, amount: 2761.5 },
   { id: "t6", date: "2026-03-28", type: "Dividend", ticker: "JNJ", amount: 31.4 },
-  { id: "t7", date: "2026-03-15", type: "Buy", ticker: "MSFT", shares: 6, price: 408.1, amount: -2448.6 },
-  { id: "t8", date: "2026-02-22", type: "Withdrawal", amount: -1000 },
-  { id: "t9", date: "2026-02-08", type: "Buy", ticker: "BTC", shares: 0.05, price: 62100, amount: -3105 },
+  { id: "t7", date: "2026-03-15", type: "Buy", ticker: "MSFT", shares: 6, price: 408.1, amount: 2448.6 },
+  { id: "t8", date: "2026-02-22", type: "Withdrawal", amount: 1000 },
+  { id: "t9", date: "2026-02-08", type: "Buy", ticker: "BTC", shares: 0.05, price: 62100, amount: 3105 },
   { id: "t10", date: "2026-01-18", type: "Dividend", ticker: "JPM", amount: 16.9 },
 ];
 

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record DrawdownPoint(
-        LocalDate date,
-        BigDecimal dd
-) {}
+    LocalDate date,
+    BigDecimal dd
+) {
+}

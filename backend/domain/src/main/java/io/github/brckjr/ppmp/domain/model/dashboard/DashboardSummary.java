@@ -1,25 +1,17 @@
 package io.github.brckjr.ppmp.domain.model.dashboard;
 
-import io.github.brckjr.ppmp.domain.model.performance.EquityPoint;
-import io.github.brckjr.ppmp.domain.model.portfolio.AssetAllocationSlice;
-import io.github.brckjr.ppmp.domain.model.portfolio.GeographicAllocationSlice;
-import io.github.brckjr.ppmp.domain.model.portfolio.SectorAllocationSlice;
+import io.github.brckjr.ppmp.domain.model.shared.EquityPoint;
+import io.github.brckjr.ppmp.domain.model.shared.allocation.AssetAllocationSlice;
+import io.github.brckjr.ppmp.domain.model.shared.allocation.GeographicAllocationSlice;
+import io.github.brckjr.ppmp.domain.model.shared.allocation.SectorAllocationSlice;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public record DashboardSummary(
-        BigDecimal portfolioValue,
-        BigDecimal portfolioValuePct,
-        BigDecimal dailyPL,
-        BigDecimal dailyPLPct,
-        BigDecimal totalReturn,
-        BigDecimal totalReturnPct,
-        BigDecimal annualizedReturnPct,
-        BigDecimal cashPosition,
-        BigDecimal totalInvested,
-        List<EquityPoint> equityCurve,
-        List<AssetAllocationSlice> allocationByAssetClass,
-        List<SectorAllocationSlice> allocationBySector,
-        List<GeographicAllocationSlice> allocationByRegion
-) {}
+    KpiMetrics kpiMetrics,
+    List<EquityPoint> portfolioValueCurve,
+    List<AssetAllocationSlice> assetClassAllocations,
+    List<SectorAllocationSlice> sectorAllocations,
+    List<GeographicAllocationSlice> regionAllocations
+) {
+}
