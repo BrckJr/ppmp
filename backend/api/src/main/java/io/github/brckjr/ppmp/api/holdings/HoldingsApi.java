@@ -5,10 +5,9 @@ import io.github.brckjr.ppmp.api.holdings.dto.HoldingsDto;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import java.util.UUID;
 
 @Path("/holdings")
 @Produces(MediaType.APPLICATION_JSON)
@@ -20,6 +19,6 @@ public interface HoldingsApi {
     HoldingsDto getHoldings();
 
     @GET
-    @Path("/{id}")
-    HoldingDetailDto getHolding(UUID id);
+    @Path("/{ticker}")
+    HoldingDetailDto getHolding(@PathParam("ticker") String ticker);
 }

@@ -19,7 +19,11 @@ public interface InstrumentPriceMapper extends BaseMapper<InstrumentPrice, Instr
             return null;
         }
         return InstrumentPrice.reconstitute(
+            entity.getId(),
+            entity.getCreatedAt(),
+            entity.getUpdatedAt(),
                 instrumentMapper().toModel(entity.getInstrument()),
+                entity.getPriceDate(),
                 entity.getOpen(),
                 entity.getHigh(),
                 entity.getLow(),
@@ -41,6 +45,7 @@ public interface InstrumentPriceMapper extends BaseMapper<InstrumentPrice, Instr
         entity.setCreatedAt(model.getCreatedAt());
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setInstrument(instrumentMapper().toEntity(model.getInstrument()));
+        entity.setPriceDate(model.getPriceDate());
         entity.setOpen(model.getOpen());
         entity.setHigh(model.getHigh());
         entity.setLow(model.getLow());
@@ -59,6 +64,7 @@ public interface InstrumentPriceMapper extends BaseMapper<InstrumentPrice, Instr
         }
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setInstrument(instrumentMapper().toEntity(model.getInstrument()));
+        entity.setPriceDate(model.getPriceDate());
         entity.setOpen(model.getOpen());
         entity.setHigh(model.getHigh());
         entity.setLow(model.getLow());

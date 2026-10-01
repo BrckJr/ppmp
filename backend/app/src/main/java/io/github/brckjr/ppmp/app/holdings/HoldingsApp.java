@@ -8,9 +8,7 @@ import io.github.brckjr.ppmp.app.holdings.mapper.HoldingsDtoMapper;
 import io.github.brckjr.ppmp.domain.service.portfolio.PortfolioService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.PathParam;
-
-import java.util.UUID;
+import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class HoldingsApp implements HoldingsApi {
@@ -32,7 +30,9 @@ public class HoldingsApp implements HoldingsApi {
   }
 
   @Override
-  public HoldingDetailDto getHolding(@PathParam("id") UUID id) {
-    return holdingDetailMapper.toDto(service.getHolding(id));
+  public HoldingDetailDto getHolding(String ticker) {
+    return service.getHolding(ticker)
+        .map(holdingDetailMapper::toDto)
+        .orElseThrow(NotFoundException::new);
   }
 }

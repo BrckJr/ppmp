@@ -80,6 +80,25 @@ public class Transaction extends BaseModel {
     Objects.requireNonNull(currency, "Currency cannot be null");
     Objects.requireNonNull(grossAmount, "Gross Amount cannot be null");
     Objects.requireNonNull(transactionType, "Transaction Type cannot be null");
+    if (grossAmount.signum() <= 0) {
+      throw new IllegalArgumentException("Gross Amount must be positive");
+    }
+    if (transactionType == TransactionType.BUY || transactionType == TransactionType.SELL) {
+      if (ticker == null || ticker.isBlank()) {
+        throw new IllegalArgumentException("Ticker is required for buy and sell transactions");
+      }
+      ticker = ticker.trim();
+      if (ticker.length() > 10) {
+        throw new IllegalArgumentException("Ticker cannot exceed 10 characters");
+      }
+      if (quantity == null || quantity.signum() <= 0) {
+        throw new IllegalArgumentException("Quantity must be positive for buy and sell transactions");
+      }
+      if (unitPrice == null || unitPrice.signum() <= 0) {
+        throw new IllegalArgumentException("Unit price must be positive for buy and sell transactions");
+      }
+      ticker = ticker.toUpperCase();
+    }
     return new Transaction(timestamp, transactionType, ticker, unitPrice, quantity, grossAmount, currency, comment);
   }
 

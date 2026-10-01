@@ -35,6 +35,8 @@ public record HoldingDetailDto(
     BigDecimal marketValue,
     BigDecimal costBasis,
     BigDecimal unrealizedGain,
-    BigDecimal unrealizedGainPct
+    BigDecimal unrealizedGainPct,
+    BigDecimal realizedGain,
+    boolean priceAvailable
 ) {
 }

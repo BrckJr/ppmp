@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(
@@ -19,6 +20,10 @@ public class InstrumentPriceEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "instrument_uuid", nullable = false)
     private InstrumentEntity instrument;
+
+    @NotNull
+    @Column(name = "price_date", nullable = false)
+    private LocalDate priceDate;
 
     @NotNull
     @Column(name = "open", nullable = false, precision = 15, scale = 4)
@@ -58,6 +63,14 @@ public class InstrumentPriceEntity extends BaseEntity {
 
     public void setInstrument(InstrumentEntity instrumentUuid) {
         this.instrument = instrumentUuid;
+    }
+
+    public LocalDate getPriceDate() {
+        return priceDate;
+    }
+
+    public void setPriceDate(LocalDate priceDate) {
+        this.priceDate = priceDate;
     }
 
     public BigDecimal getOpen() {

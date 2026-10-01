@@ -2,8 +2,10 @@ package io.github.brckjr.ppmp.domain.model.instrument;
 
 import io.github.brckjr.ppmp.domain.model.BaseModel;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Instrument extends BaseModel {
 
@@ -15,6 +17,7 @@ public class Instrument extends BaseModel {
   private final String country;
   private final String region;
   private final String sector;
+  private final String type;
 
 
   private Instrument(
@@ -25,7 +28,8 @@ public class Instrument extends BaseModel {
       String exchange, //
       String country, //
       String region, //
-      String sector //
+      String sector, //
+      String type //
   ) {
     super();
     this.currency = currency;
@@ -36,6 +40,7 @@ public class Instrument extends BaseModel {
     this.country = country;
     this.region = region;
     this.sector = sector;
+    this.type = type;
   }
 
   public static Instrument create(
@@ -46,10 +51,11 @@ public class Instrument extends BaseModel {
       String exchange, //
       String country, //
       String region, //
-      String sector //
+      String sector, //
+      String type //
   ) {
     Objects.requireNonNull(currency, "Instrument currency cannot be null");
-    return new Instrument(name, ticker, currency, isin, exchange, country, region, sector);
+    return new Instrument(name, ticker, currency, isin, exchange, country, region, sector, type);
   }
 
   public static Instrument reconstitute(
@@ -60,9 +66,53 @@ public class Instrument extends BaseModel {
       String exchange, //
       String country, //
       String region, //
-      String sector //
+      String sector, //
+      String type //
   ) {
-    return new Instrument(name, ticker, currency, isin, exchange, country, region, sector);
+    return new Instrument(name, ticker, currency, isin, exchange, country, region, sector, type);
+  }
+
+  public static Instrument reconstitute(
+      UUID id,
+      OffsetDateTime createdAt,
+      OffsetDateTime updatedAt,
+      String name,
+      String ticker,
+      String currency,
+      String isin,
+      String exchange,
+      String country,
+      String region,
+      String sector,
+      String type
+  ) {
+    return new Instrument(id, createdAt, updatedAt, name, ticker, currency, isin, exchange, country, region, sector, type);
+  }
+
+  private Instrument(
+      UUID id,
+      OffsetDateTime createdAt,
+      OffsetDateTime updatedAt,
+      String name,
+      String ticker,
+      String currency,
+      String isin,
+      String exchange,
+      String country,
+      String region,
+      String sector,
+      String type
+  ) {
+    super(id, createdAt, updatedAt);
+    this.currency = currency;
+    this.name = name;
+    this.ticker = ticker;
+    this.isin = isin;
+    this.exchange = exchange;
+    this.country = country;
+    this.region = region;
+    this.sector = sector;
+    this.type = type;
   }
 
 
@@ -100,6 +150,10 @@ public class Instrument extends BaseModel {
 
   public Optional<String> getSector() {
     return Optional.ofNullable(sector);
+  }
+
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
   }
 
 

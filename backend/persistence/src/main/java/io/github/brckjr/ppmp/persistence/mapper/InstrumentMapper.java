@@ -14,6 +14,9 @@ public interface InstrumentMapper extends BaseMapper<Instrument, InstrumentEntit
       return null;
     }
     return Instrument.reconstitute(
+      entity.getId(),
+      entity.getCreatedAt(),
+      entity.getUpdatedAt(),
         entity.getName(),
         entity.getTicker(),
         entity.getCurrency(),
@@ -21,7 +24,8 @@ public interface InstrumentMapper extends BaseMapper<Instrument, InstrumentEntit
         entity.getExchange(),
         entity.getCountry(),
         entity.getRegion(),
-        entity.getSector()
+        entity.getSector(),
+        entity.getType()
     );
   }
 
@@ -42,6 +46,7 @@ public interface InstrumentMapper extends BaseMapper<Instrument, InstrumentEntit
     entity.setCountry(model.getCountry().orElse(null));
     entity.setRegion(model.getRegion().orElse(null));
     entity.setSector(model.getSector().orElse(null));
+    entity.setType(model.getType().orElse(null));
     return entity;
   }
 
@@ -59,5 +64,6 @@ public interface InstrumentMapper extends BaseMapper<Instrument, InstrumentEntit
     entity.setCountry(model.getCountry().orElse(null));
     entity.setRegion(model.getRegion().orElse(null));
     entity.setSector(model.getSector().orElse(null));
+    entity.setType(model.getType().orElse(null));
   }
 }

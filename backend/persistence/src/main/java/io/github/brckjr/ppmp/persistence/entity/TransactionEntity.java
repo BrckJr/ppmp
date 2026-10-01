@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 @Table(name = "transaction", schema = "ppmp")
 public class TransactionEntity extends BaseEntity {
 
-  @Column(name = "ticker", length = 4)
+  @Column(name = "ticker", length = 10)
   private String ticker;
 
   @NotNull
