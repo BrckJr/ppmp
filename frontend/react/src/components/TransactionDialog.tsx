@@ -7,22 +7,33 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { formatCurrencyPrecise, type Transaction, type TxType } from "../lib/portfolio-data";
+import { formatCurrencyPrecise } from "../lib/portfolio-data";
+import { postApiTransactions } from "../api/generated";
+import type { Currency, TransactionDto, TransactionType } from "../api/generated/types.gen";
 
 type TransactionDraft = {
-  type: TxType;
+  type: TransactionType;
   date: string;
   ticker: string;
   shares: string;
   price: string;
   amount: string;
+  currency: Currency;
+};
+
+const TYPE_LABELS: Record<TransactionType, string> = {
+  BUY: "Buy",
+  SELL: "Sell",
+  DIVIDEND: "Dividend",
+  DEPOSIT: "Deposit",
+  WITHDRAWAL: "Withdrawal",
 };
 
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function createDraft(type: TxType = "Buy"): TransactionDraft {
+function createDraft(type: TransactionType = "BUY"): TransactionDraft {
   return {
     type,
     date: todayIsoDate(),
@@ -30,6 +41,7 @@ function createDraft(type: TxType = "Buy"): TransactionDraft {
     shares: "",
     price: "",
     amount: "",
+    currency: "USD",
   };
 }
 
@@ -38,24 +50,25 @@ function parseNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function isSecurityTransaction(type: TxType) {
-  return type === "Buy" || type === "Sell" || type === "Dividend";
+function isSecurityTransaction(type: TransactionType) {
+  return type === "BUY" || type === "SELL" || type === "DIVIDEND";
 }
 
-function isTrade(type: TxType) {
-  return type === "Buy" || type === "Sell";
+function isTrade(type: TransactionType) {
+  return type === "BUY" || type === "SELL";
 }
 
-export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transaction) => void }) {
+export function TransactionDialog({ onCreate }: { onCreate: () => void }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<TransactionDraft>(() => createDraft());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tradeAmount = parseNumber(draft.shares) * parseNumber(draft.price);
-  const signedTradeAmount = draft.type === "Buy" ? -tradeAmount : tradeAmount;
-  const normalizedCashAmount = draft.type === "Withdrawal" ? -Math.abs(parseNumber(draft.amount)) : Math.abs(parseNumber(draft.amount));
+  const signedTradeAmount = draft.type === "BUY" ? -tradeAmount : tradeAmount;
+  const normalizedCashAmount = draft.type === "WITHDRAWAL" ? -Math.abs(parseNumber(draft.amount)) : Math.abs(parseNumber(draft.amount));
 
   const canSubmit =
-    draft.date &&
+    Boolean(draft.date) &&
     (!isSecurityTransaction(draft.type) || draft.ticker.trim().length > 0) &&
     (!isTrade(draft.type)
       ? parseNumber(draft.amount) > 0
@@ -66,40 +79,44 @@ export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transa
     setOpen(true);
   }
 
-  function updateType(type: TxType) {
+  function updateType(type: TransactionType) {
     setDraft((prev) => ({
       ...createDraft(type),
       date: prev.date,
     }));
   }
 
-  function handleSubmit() {
-    if (!canSubmit) return;
+  async function handleSubmit() {
+    if (!canSubmit || isSubmitting) return;
 
-    const base: Transaction = {
-      id: `t-${Date.now()}`,
-      date: draft.date,
+    const payload: TransactionDto = {
+      timestamp: new Date(draft.date).toISOString(),
       type: draft.type,
-      amount: 0,
+      currency: draft.currency,
+      grossAmount: isTrade(draft.type) ? Math.abs(signedTradeAmount) : Math.abs(normalizedCashAmount),
     };
 
     if (isSecurityTransaction(draft.type)) {
-      base.ticker = draft.ticker.trim().toUpperCase();
+      payload.ticker = draft.ticker.trim().toUpperCase();
     }
 
     if (isTrade(draft.type)) {
-      const shares = parseNumber(draft.shares);
-      const price = parseNumber(draft.price);
-
-      base.shares = shares;
-      base.price = price;
-      base.amount = signedTradeAmount;
-    } else {
-      base.amount = normalizedCashAmount;
+      payload.quantity = parseNumber(draft.shares);
+      payload.unitPrice = parseNumber(draft.price);
     }
 
-    onCreate(base);
-    setOpen(false);
+    setIsSubmitting(true);
+    try {
+      const { error } = await postApiTransactions({ body: payload });
+      if (error) throw new Error("Failed to create transaction");
+      onCreate();
+      setOpen(false);
+    } catch (err) {
+      alert("Failed to create transaction. Please try again.");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -120,16 +137,16 @@ export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transa
         <div className="grid gap-5 py-2">
           <div className="grid gap-2">
             <Label htmlFor="tx-type">Transaction type</Label>
-            <Select value={draft.type} onValueChange={(value) => updateType(value as TxType)}>
+            <Select value={draft.type} onValueChange={(value) => updateType(value as TransactionType)}>
               <SelectTrigger id="tx-type">
                 <SelectValue placeholder="Select a transaction type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Buy">Buy</SelectItem>
-                <SelectItem value="Sell">Sell</SelectItem>
-                <SelectItem value="Dividend">Dividend</SelectItem>
-                <SelectItem value="Deposit">Deposit</SelectItem>
-                <SelectItem value="Withdrawal">Withdrawal</SelectItem>
+                {(Object.keys(TYPE_LABELS) as TransactionType[]).map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {TYPE_LABELS[type]}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -194,7 +211,7 @@ export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transa
           ) : (
             <div className="grid gap-2 sm:max-w-xs">
               <Label htmlFor="tx-amount">
-                {draft.type === "Dividend" ? "Cash dividend" : "Amount"}
+                {draft.type === "DIVIDEND" ? "Cash dividend" : "Amount"}
               </Label>
               <Input
                 id="tx-amount"
@@ -205,7 +222,7 @@ export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transa
                 value={draft.amount}
                 onChange={(event) => setDraft((prev) => ({ ...prev, amount: event.target.value }))}
               />
-              {draft.type === "Withdrawal" && (
+              {draft.type === "WITHDRAWAL" && (
                 <p className="text-xs text-muted-foreground">The stored amount will be negative for withdrawals.</p>
               )}
             </div>
@@ -213,11 +230,11 @@ export function TransactionDialog({ onCreate }: { onCreate: (transaction: Transa
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
-            Create transaction
+          <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting}>
+            {isSubmitting ? "Creating…" : "Create transaction"}
           </Button>
         </DialogFooter>
       </DialogContent>

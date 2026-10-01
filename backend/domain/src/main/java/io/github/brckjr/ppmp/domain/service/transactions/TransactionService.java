@@ -68,7 +68,7 @@ public class TransactionService {
         .thenComparing(Transaction::getCreatedAt)
         .thenComparing(Transaction::getId))
       .map(Transaction::getCurrency)
-      .orElse(Currency.USD);
+      .orElse(Currency.EUR);
 
     BigDecimal totalDividends = sum(transactions, transaction ->
       transaction.getTransactionType() == TransactionType.DIVIDEND ? transaction.getGrossAmount() : BigDecimal.ZERO);

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDownLeft, ArrowUpRight, DollarSign, Receipt, Trash2, Wallet } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Coins, Receipt, Trash2, Wallet } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { KpiCard } from "../components/KpiCard";
 import { TransactionDialog } from "../components/TransactionDialog";
@@ -134,7 +134,7 @@ export default function TransactionsPage() {
           label="Total Dividends (YTD)" 
           value={metrics ? formatCurrencyPrecise(metrics.totalDividends) : "—"} 
           trend="up" 
-          icon={DollarSign} 
+          icon={Coins} 
         />
         <KpiCard 
           label="Net Capital Inflow" 

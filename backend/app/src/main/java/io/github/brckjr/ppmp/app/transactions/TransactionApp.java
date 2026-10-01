@@ -4,8 +4,8 @@ import io.github.brckjr.ppmp.api.transactions.TransactionApi;
 import io.github.brckjr.ppmp.api.transactions.dto.TransactionDto;
 import io.github.brckjr.ppmp.api.transactions.dto.TransactionMetricsDto;
 import io.github.brckjr.ppmp.app.transactions.mapper.TransactionDtoMapper;
+import io.github.brckjr.ppmp.app.transactions.mapper.TransactionMetricsDtoMapper;
 import io.github.brckjr.ppmp.common.enums.TransactionType;
-import io.github.brckjr.ppmp.domain.model.transaction.TransactionMetrics;
 import io.github.brckjr.ppmp.domain.service.transactions.TransactionService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,29 +19,31 @@ import java.util.UUID;
 public class TransactionApp implements TransactionApi {
 
   private final TransactionService service;
-  private final TransactionDtoMapper mapper;
+  private final TransactionDtoMapper transactionDtoMapper;
+  private final TransactionMetricsDtoMapper transactionMetricsDtoMapper;
 
   @Inject
-  public TransactionApp(TransactionService service, TransactionDtoMapper mapper) {
+  public TransactionApp(TransactionService service, TransactionDtoMapper transactionDtoMapper, TransactionMetricsDtoMapper transactionMetricsDtoMapper) {
     this.service = service;
-    this.mapper = mapper;
+    this.transactionDtoMapper = transactionDtoMapper;
+    this.transactionMetricsDtoMapper = transactionMetricsDtoMapper;
   }
 
   @Override
   public List<TransactionDto> getAllTransactions(TransactionType type, int limit, int offset) {
-    return service.getAllTransactions(type, limit, offset).stream().map(mapper::toDto).toList();
+    return service.getAllTransactions(type, limit, offset).stream().map(transactionDtoMapper::toDto).toList();
   }
 
   @Override
   public TransactionDto getTransactionById(UUID id) {
     return service.getTransactionById(id)
-        .map(mapper::toDto)
-        .orElseThrow(() -> new NotFoundException("Transaction not found: " + id));
+      .map(transactionDtoMapper::toDto)
+      .orElseThrow(() -> new NotFoundException("Transaction not found: " + id));
   }
 
   @Override
   public TransactionDto createTransaction(TransactionDto newTransaction) {
-    return mapper.toDto(service.createTransaction(mapper.toDomain(newTransaction)));
+    return transactionDtoMapper.toDto(service.createTransaction(transactionDtoMapper.toDomain(newTransaction)));
   }
 
   @Override
@@ -54,13 +56,8 @@ public class TransactionApp implements TransactionApi {
   @Override
   public TransactionMetricsDto getTransactionMetrics(String period) {
     try {
-      TransactionMetrics metrics = service.getTransactionMetrics(period);
-      return new TransactionMetricsDto(
-          metrics.totalDividends(),
-          metrics.netCapitalInflow(),
-          metrics.totalVolume(),
-          metrics.currency().name()
-      );
+      return transactionMetricsDtoMapper.toDto(service.getTransactionMetrics(period));
+
     } catch (IllegalArgumentException ex) {
       throw new BadRequestException(ex.getMessage(), ex);
     }
