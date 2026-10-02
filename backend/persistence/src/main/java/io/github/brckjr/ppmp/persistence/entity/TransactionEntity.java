@@ -13,8 +13,9 @@ import java.time.OffsetDateTime;
 @Table(name = "transaction", schema = "ppmp")
 public class TransactionEntity extends BaseEntity {
 
-  @Column(name = "ticker", length = 10)
-  private String ticker;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "instrument_uuid")
+  private InstrumentEntity instrument;
 
   @NotNull
   @Enumerated(EnumType.STRING)
@@ -44,12 +45,12 @@ public class TransactionEntity extends BaseEntity {
   @Column(name = "comment")
   private String comment;
 
-  public String getTicker() {
-    return ticker;
+  public InstrumentEntity getInstrument() {
+    return instrument;
   }
 
-  public void setTicker(String ticker) {
-    this.ticker = ticker;
+  public void setInstrument(InstrumentEntity instrument) {
+    this.instrument = instrument;
   }
 
   public TransactionType getTransactionType() {

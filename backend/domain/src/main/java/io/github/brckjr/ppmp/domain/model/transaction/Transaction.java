@@ -3,6 +3,7 @@ package io.github.brckjr.ppmp.domain.model.transaction;
 import io.github.brckjr.ppmp.common.enums.Currency;
 import io.github.brckjr.ppmp.common.enums.TransactionType;
 import io.github.brckjr.ppmp.domain.model.BaseModel;
+import io.github.brckjr.ppmp.domain.model.instrument.Instrument;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -14,7 +15,7 @@ public class Transaction extends BaseModel {
 
   private final OffsetDateTime timestamp;
   private final TransactionType transactionType;
-  private final String ticker;
+  private final Instrument instrument;
   private final BigDecimal quantity;
   private final BigDecimal unitPrice;
   private final BigDecimal grossAmount;
@@ -24,7 +25,7 @@ public class Transaction extends BaseModel {
   private Transaction(
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String ticker,
+      Instrument instrument,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -34,7 +35,7 @@ public class Transaction extends BaseModel {
     super();
     this.timestamp = timestamp;
     this.transactionType = transactionType;
-    this.ticker = ticker;
+    this.instrument = instrument;
     this.unitPrice = unitPrice;
     this.quantity = quantity;
     this.grossAmount = grossAmount;
@@ -48,7 +49,7 @@ public class Transaction extends BaseModel {
       OffsetDateTime updatedAt,
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String ticker,
+      Instrument instrument,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -58,7 +59,7 @@ public class Transaction extends BaseModel {
     super(id, createdAt, updatedAt);
     this.timestamp = timestamp;
     this.transactionType = transactionType;
-    this.ticker = ticker;
+    this.instrument = instrument;
     this.unitPrice = unitPrice;
     this.quantity = quantity;
     this.grossAmount = grossAmount;
@@ -69,7 +70,7 @@ public class Transaction extends BaseModel {
   public static Transaction create(
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String ticker,
+      Instrument instrument,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -83,23 +84,25 @@ public class Transaction extends BaseModel {
     if (grossAmount.signum() <= 0) {
       throw new IllegalArgumentException("Gross Amount must be positive");
     }
+    boolean requiresInstrument = transactionType == TransactionType.BUY
+      || transactionType == TransactionType.SELL
+      || transactionType == TransactionType.DIVIDEND;
+    if (requiresInstrument) {
+      if (instrument == null) {
+        throw new IllegalArgumentException("Instrument is required for buy, sell and dividend transactions");
+      }
+    } else {
+      instrument = null;
+    }
     if (transactionType == TransactionType.BUY || transactionType == TransactionType.SELL) {
-      if (ticker == null || ticker.isBlank()) {
-        throw new IllegalArgumentException("Ticker is required for buy and sell transactions");
-      }
-      ticker = ticker.trim();
-      if (ticker.length() > 10) {
-        throw new IllegalArgumentException("Ticker cannot exceed 10 characters");
-      }
       if (quantity == null || quantity.signum() <= 0) {
         throw new IllegalArgumentException("Quantity must be positive for buy and sell transactions");
       }
       if (unitPrice == null || unitPrice.signum() <= 0) {
         throw new IllegalArgumentException("Unit price must be positive for buy and sell transactions");
       }
-      ticker = ticker.toUpperCase();
     }
-    return new Transaction(timestamp, transactionType, ticker, unitPrice, quantity, grossAmount, currency, comment);
+    return new Transaction(timestamp, transactionType, instrument, unitPrice, quantity, grossAmount, currency, comment);
   }
 
   public static Transaction reconstitute(
@@ -108,7 +111,7 @@ public class Transaction extends BaseModel {
       OffsetDateTime updatedAt,
       OffsetDateTime timestamp,
       TransactionType transactionType,
-      String ticker,
+      Instrument instrument,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal grossAmount,
@@ -128,7 +131,7 @@ public class Transaction extends BaseModel {
         updatedAt,
         timestamp,
         transactionType,
-        ticker,
+        instrument,
         unitPrice,
         quantity,
         grossAmount,
@@ -142,8 +145,12 @@ public class Transaction extends BaseModel {
 
   // --- Getters ---
 
+  public Optional<Instrument> getInstrument() {
+    return Optional.ofNullable(instrument);
+  }
+
   public String getTicker() {
-    return ticker;
+    return instrument == null ? null : instrument.getTicker().orElse(null);
   }
 
   public TransactionType getTransactionType() {

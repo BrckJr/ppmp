@@ -55,7 +55,31 @@ public class Instrument extends BaseModel {
       String type //
   ) {
     Objects.requireNonNull(currency, "Instrument currency cannot be null");
+    if (ticker == null || ticker.isBlank()) {
+      throw new IllegalArgumentException("Instrument ticker is required");
+    }
+    if (type == null || type.isBlank()) {
+      throw new IllegalArgumentException("Instrument type is required");
+    }
+    ticker = ticker.trim().toUpperCase();
+    currency = currency.trim().toUpperCase();
+    isin = isin == null || isin.isBlank() ? null : isin.trim().toUpperCase();
+    requireMaxLength("ticker", ticker, 10);
+    requireMaxLength("currency", currency, 3);
+    requireMaxLength("isin", isin, 12);
+    requireMaxLength("name", name, 100);
+    requireMaxLength("type", type, 100);
+    requireMaxLength("exchange", exchange, 100);
+    requireMaxLength("country", country, 40);
+    requireMaxLength("region", region, 40);
+    requireMaxLength("sector", sector, 40);
     return new Instrument(name, ticker, currency, isin, exchange, country, region, sector, type);
+  }
+
+  private static void requireMaxLength(String field, String value, int max) {
+    if (value != null && value.length() > max) {
+      throw new IllegalArgumentException("Instrument " + field + " cannot exceed " + max + " characters");
+    }
   }
 
   public static Instrument reconstitute(

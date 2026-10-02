@@ -54,6 +54,7 @@ public class BaseRepositoryImpl<D extends BaseModel, E extends BaseEntity>
   @Transactional
   public D persist(D model) {
     E entity = mapper.toEntity(model);
+    resolveReferences(entity);
     entityManager.persist(entity);
     entityManager.flush();
     return mapper.toModel(entity);
@@ -67,6 +68,7 @@ public class BaseRepositoryImpl<D extends BaseModel, E extends BaseEntity>
       throw new IllegalArgumentException("Entity not found with id: " + id);
     }
     mapper.updateEntityFromModel(model, entity);
+    resolveReferences(entity);
     entityManager.merge(entity);
     entityManager.flush();
     return mapper.toModel(entity);
@@ -80,6 +82,10 @@ public class BaseRepositoryImpl<D extends BaseModel, E extends BaseEntity>
       throw new IllegalArgumentException("Entity not found with id: " + id);
     }
     entityManager.remove(entity);
+  }
+
+  /** Hook to swap detached associations for managed references before persisting. */
+  protected void resolveReferences(E entity) {
   }
 
   @Override

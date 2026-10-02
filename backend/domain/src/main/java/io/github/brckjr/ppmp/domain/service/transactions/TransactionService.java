@@ -2,8 +2,10 @@ package io.github.brckjr.ppmp.domain.service.transactions;
 
 import io.github.brckjr.ppmp.common.enums.Currency;
 import io.github.brckjr.ppmp.common.enums.TransactionType;
+import io.github.brckjr.ppmp.domain.model.instrument.Instrument;
 import io.github.brckjr.ppmp.domain.model.transaction.Transaction;
 import io.github.brckjr.ppmp.domain.model.transaction.TransactionMetrics;
+import io.github.brckjr.ppmp.domain.repository.InstrumentRepository;
 import io.github.brckjr.ppmp.domain.repository.TransactionRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,10 +20,12 @@ import java.util.function.Function;
 public class TransactionService {
 
   private final TransactionRepository repository;
+  private final InstrumentRepository instrumentRepository;
 
   @Inject
-  public TransactionService(TransactionRepository repository) {
+  public TransactionService(TransactionRepository repository, InstrumentRepository instrumentRepository) {
     this.repository = repository;
+    this.instrumentRepository = instrumentRepository;
   }
 
   public List<Transaction> getAllTransactions(TransactionType type, int limit, int offset) {
@@ -45,8 +49,27 @@ public class TransactionService {
     return repository.findById(id);
   }
 
-  public Transaction createTransaction(Transaction transaction) {
-    return repository.persist(transaction);
+  public Transaction createTransaction(
+    OffsetDateTime timestamp,
+    TransactionType type,
+    UUID instrumentId,
+    String ticker,
+    BigDecimal unitPrice,
+    BigDecimal quantity,
+    BigDecimal grossAmount,
+    Currency currency,
+    String comment
+  ) {
+    Instrument instrument = null;
+    if (instrumentId != null) {
+      instrument = instrumentRepository.findById(instrumentId)
+        .orElseThrow(() -> new IllegalArgumentException("Unknown instrument: " + instrumentId));
+    } else if (ticker != null && !ticker.isBlank()) {
+      String normalized = ticker.trim().toUpperCase(java.util.Locale.ROOT);
+      instrument = instrumentRepository.findByTicker(normalized)
+        .orElseThrow(() -> new IllegalArgumentException("Unknown instrument ticker: " + normalized));
+    }
+    return repository.persist(Transaction.create(timestamp, type, instrument, unitPrice, quantity, grossAmount, currency, comment));
   }
 
   public boolean deleteTransaction(UUID id) {

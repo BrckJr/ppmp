@@ -43,7 +43,21 @@ public class TransactionApp implements TransactionApi {
 
   @Override
   public TransactionDto createTransaction(TransactionDto newTransaction) {
-    return transactionDtoMapper.toDto(service.createTransaction(transactionDtoMapper.toDomain(newTransaction)));
+    try {
+      return transactionDtoMapper.toDto(service.createTransaction(
+        newTransaction.timestamp(),
+        newTransaction.type(),
+        newTransaction.instrumentId(),
+        newTransaction.ticker(),
+        newTransaction.unitPrice(),
+        newTransaction.quantity(),
+        newTransaction.grossAmount(),
+        newTransaction.currency(),
+        newTransaction.comment()
+      ));
+    } catch (IllegalArgumentException | NullPointerException ex) {
+      throw new BadRequestException(ex.getMessage(), ex);
+    }
   }
 
   @Override
