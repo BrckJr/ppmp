@@ -56,3 +56,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
+        - addUniqueConstraint:
+            schemaName: ${ppmp.schema}
+            tableName: instrument
+            columnNames: ticker
+            constraintName: uq_instrument_ticker
+
+        - addUniqueConstraint:
+            schemaName: ${ppmp.schema}
+            tableName: instrument
+            columnNames: isin
+            constraintName: uq_instrument_isin

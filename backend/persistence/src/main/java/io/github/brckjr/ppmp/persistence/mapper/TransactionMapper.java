@@ -25,7 +25,7 @@ public interface TransactionMapper extends BaseMapper<Transaction, TransactionEn
         entity.getUpdatedAt(),
         entity.getTimestamp(),
         entity.getTransactionType(),
-        entity.getTicker(),
+        instrumentMapper().toModel(entity.getInstrument()),
         entity.getUnitPrice(),
         entity.getQuantity(),
         entity.getGrossAmount(),
@@ -43,7 +43,7 @@ public interface TransactionMapper extends BaseMapper<Transaction, TransactionEn
     entity.setId(model.getId());
     entity.setCreatedAt(model.getCreatedAt());
     entity.setUpdatedAt(model.getUpdatedAt());
-    entity.setTicker(model.getTicker());
+    entity.setInstrument(instrumentMapper().toEntity(model.getInstrument().orElse(null)));
     entity.setTransactionType(model.getTransactionType());
     entity.setTimestamp(model.getTimestamp());
     entity.setUnitPrice(model.getUnitPrice().orElse(null));
@@ -60,7 +60,7 @@ public interface TransactionMapper extends BaseMapper<Transaction, TransactionEn
       return;
     }
     entity.setUpdatedAt(model.getUpdatedAt());
-    entity.setTicker(model.getTicker());
+    entity.setInstrument(instrumentMapper().toEntity(model.getInstrument().orElse(null)));
     entity.setTransactionType(model.getTransactionType());
     entity.setTimestamp(model.getTimestamp());
     entity.setUnitPrice(model.getUnitPrice().orElse(null));

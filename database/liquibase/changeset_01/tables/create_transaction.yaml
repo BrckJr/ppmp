@@ -16,8 +16,8 @@ databaseChangeLog:
                     primaryKeyName: pk_transaction
 
               - column:
-                  name: ticker
-                  type: varchar(10)
+                  name: instrument_uuid
+                  type: uuid
 
               - column:
                   name: transaction_type
@@ -66,3 +66,27 @@ databaseChangeLog:
                   type: timestamp
                   constraints:
                     nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${ppmp.schema}
+            baseTableName: transaction
+            baseColumnNames: instrument_uuid
+            referencedTableSchemaName: ${ppmp.schema}
+            referencedTableName: instrument
+            referencedColumnNames: uuid
+            constraintName: fk_transaction_instrument_id
+            onDelete: RESTRICT
+
+        - createIndex:
+            schemaName: ${ppmp.schema}
+            tableName: transaction
+            indexName: idx_transaction_instrument_uuid
+            columns:
+              - column:
+                  name: instrument_uuid
+
+        - sql:
+            sql: >
+              ALTER TABLE ${ppmp.schema}.transaction
+              ADD CONSTRAINT chk_transaction_instrument_required
+              CHECK (transaction_type NOT IN ('BUY', 'SELL', 'DIVIDEND') OR instrument_uuid IS NOT NULL)

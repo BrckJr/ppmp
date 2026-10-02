@@ -78,7 +78,7 @@ class PortfolioServiceTest {
     return Transaction.create(
         OffsetDateTime.parse(timestamp),
         type,
-        ticker,
+        Instrument.create(ticker, ticker, "USD", null, null, "US", "US", "TECHNOLOGY", "STOCK"),
         decimal("100"),
         decimal(quantity),
         decimal(grossAmount),
@@ -141,6 +141,12 @@ class PortfolioServiceTest {
     @Override public Instrument update(UUID id, Instrument value) { return super.update(id, value); }
     @Override public void deleteById(UUID id) { super.deleteById(id); }
     @Override public long count() { return super.count(); }
+    @Override public Optional<Instrument> findByTicker(String ticker) {
+      return findAll().stream().filter(i -> i.getTicker().filter(ticker::equalsIgnoreCase).isPresent()).findFirst();
+    }
+    @Override public Optional<Instrument> findByIsin(String isin) {
+      return findAll().stream().filter(i -> i.getIsin().filter(isin::equalsIgnoreCase).isPresent()).findFirst();
+    }
   }
 
   private static final class InMemoryInstrumentPriceRepository extends InMemoryRepository<InstrumentPrice> implements InstrumentPriceRepository {
@@ -151,5 +157,14 @@ class PortfolioServiceTest {
     @Override public InstrumentPrice update(UUID id, InstrumentPrice value) { return super.update(id, value); }
     @Override public void deleteById(UUID id) { super.deleteById(id); }
     @Override public long count() { return super.count(); }
+    @Override public List<InstrumentPrice> findByInstrumentId(UUID instrumentId, LocalDate from, LocalDate to) {
+      return findAll().stream().filter(p -> p.getInstrument().getId().equals(instrumentId)).toList();
+    }
+    @Override public Optional<InstrumentPrice> findLatestByInstrumentId(UUID instrumentId) {
+      return findByInstrumentId(instrumentId, null, null).stream().max(java.util.Comparator.comparing(InstrumentPrice::getPriceDate));
+    }
+    @Override public Optional<InstrumentPrice> findByInstrumentIdAndDate(UUID instrumentId, LocalDate priceDate) {
+      return findByInstrumentId(instrumentId, null, null).stream().filter(p -> p.getPriceDate().equals(priceDate)).findFirst();
+    }
   }
 }

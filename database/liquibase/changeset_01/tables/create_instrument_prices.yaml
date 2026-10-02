@@ -89,3 +89,9 @@ databaseChangeLog:
             columns:
               - column:
                   name: price_date
+
+        - addUniqueConstraint:
+            schemaName: ${ppmp.schema}
+            tableName: instrument_prices
+            columnNames: instrument_uuid, price_date
+            constraintName: uq_instrument_prices_instrument_date
