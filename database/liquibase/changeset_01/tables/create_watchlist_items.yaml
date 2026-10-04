@@ -48,7 +48,7 @@ databaseChangeLog:
             referencedTableSchemaName: ${ppmp.schema}
             referencedTableName: watchlist
             referencedColumnNames: uuid
-            constraintName: fk_watchlist_item_user_id
+            constraintName: fk_watchlist_item_watchlist_id
             onDelete: CASCADE
 
         - addForeignKeyConstraint:
@@ -60,3 +60,8 @@ databaseChangeLog:
             referencedColumnNames: uuid
             constraintName: fk_watchlist_item_instrument_id
 
+        - addUniqueConstraint:
+            schemaName: ${ppmp.schema}
+            tableName: watchlist_item
+            columnNames: watchlist_uuid, instrument_uuid
+            constraintName: uq_watchlist_item_watchlist_instrument

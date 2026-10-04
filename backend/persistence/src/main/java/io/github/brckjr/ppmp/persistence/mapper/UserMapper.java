@@ -14,6 +14,9 @@ public interface UserMapper extends BaseMapper<User, UserEntity> {
             return null;
         }
         return User.reconstitute(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
                 entity.getEmail(),
                 entity.getUsername(),
                 entity.getFirstName(),

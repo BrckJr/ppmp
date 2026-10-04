@@ -8,7 +8,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Mapper(componentModel = "cdi")
 public interface WatchlistMapper extends BaseMapper<Watchlist, WatchlistEntity> {
@@ -29,6 +34,9 @@ public interface WatchlistMapper extends BaseMapper<Watchlist, WatchlistEntity> 
             return null;
         }
         return Watchlist.reconstitute(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
                 userMapper().toModel(entity.getUser()),
                 entity.getName(),
                 entity.getDescription(),
@@ -66,12 +74,25 @@ public interface WatchlistMapper extends BaseMapper<Watchlist, WatchlistEntity> 
         entity.setUser(userMapper().toEntity(model.getUser()));
         entity.setName(model.getName());
         entity.setDescription(model.getDescription().orElse(null));
+        syncItems(model, entity);
+    }
 
-        List<WatchlistItemEntity> items = toWatchlistItemEntityList(model.getItems());
-        entity.setItems(items);
-        if (items != null) {
-            items.forEach(item -> item.setWatchlist(entity));
+    // The managed collection must be modified in place, otherwise orphan removal fails.
+    default void syncItems(Watchlist model, WatchlistEntity entity) {
+        Map<UUID, WatchlistItemEntity> existing = new HashMap<>();
+        entity.getItems().forEach(item -> existing.put(item.getId(), item));
+
+        Set<UUID> keptIds = new HashSet<>();
+        for (WatchlistItem item : model.getItems()) {
+            keptIds.add(item.getId());
+            WatchlistItemEntity itemEntity = existing.get(item.getId());
+            if (itemEntity == null) {
+                entity.addItem(watchlistItemMapper().toEntity(item));
+            } else {
+                watchlistItemMapper().updateEntityFromModel(item, itemEntity);
+            }
         }
+        entity.getItems().removeIf(item -> !keptIds.contains(item.getId()));
     }
 
     default List<WatchlistItem> toWatchlistItemModelList(List<WatchlistItemEntity> entities) {
