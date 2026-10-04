@@ -29,6 +29,7 @@ class TransactionDtoMapperTest {
   void toDtoIncludesInstrumentDetails() {
     Instrument instrument = Instrument.create("Apple Inc.", "AAPL", "USD", null, null, "US", "US", "TECHNOLOGY", "STOCK");
     Transaction transaction = Transaction.create(
+      java.util.UUID.randomUUID(),
       OffsetDateTime.parse("2026-07-01T10:15:30Z"),
       TransactionType.BUY,
       instrument,

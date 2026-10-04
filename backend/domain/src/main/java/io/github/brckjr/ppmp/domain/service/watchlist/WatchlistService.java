@@ -15,18 +15,10 @@ import jakarta.inject.Inject;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 public class WatchlistService {
-
-  // There is no authentication yet, so everything belongs to this single user.
-  static final String DEFAULT_USERNAME = "default";
-  static final String DEFAULT_EMAIL = "default@ppmp.local";
 
   private final WatchlistRepository watchlistRepository;
   private final UserRepository userRepository;
@@ -46,15 +38,15 @@ public class WatchlistService {
     this.priceRepository = priceRepository;
   }
 
-  /** Lists the watchlists of the current user, oldest first. */
-  public List<Watchlist> getWatchlists() {
-    return watchlistRepository.findByUserId(currentUser().getId()).stream()
+  public List<Watchlist> getWatchlists(UUID userId) {
+    Objects.requireNonNull(userId, "User id cannot be null");
+    return watchlistRepository.findByUserId(userId).stream()
       .sorted(Comparator.comparing(Watchlist::getCreatedAt).thenComparing(Watchlist::getId))
       .toList();
   }
 
-  public Watchlist createWatchlist(String name, String description) {
-    User user = currentUser();
+  public Watchlist createWatchlist(UUID userId, String name, String description) {
+    User user = loadUser(userId);
     Watchlist watchlist = Watchlist.create(user, name, description, null);
     boolean nameTaken = watchlistRepository.findByUserId(user.getId()).stream()
       .anyMatch(existing -> existing.getName().equalsIgnoreCase(watchlist.getName()));
@@ -64,24 +56,18 @@ public class WatchlistService {
     return watchlistRepository.persist(watchlist);
   }
 
-  /** Deletes a watchlist including its items. @throws NoSuchElementException if it does not exist */
-  public void deleteWatchlist(UUID watchlistId) {
-    findOwnedWatchlist(watchlistId);
+  public void deleteWatchlist(UUID userId, UUID watchlistId) {
+    findOwnedWatchlist(userId, watchlistId);
     watchlistRepository.deleteById(watchlistId);
   }
 
-  /** @throws NoSuchElementException if the watchlist does not exist */
-  public List<WatchlistItemView> getItems(UUID watchlistId) {
-    return toViews(findOwnedWatchlist(watchlistId));
+  public List<WatchlistItemView> getItems(UUID userId, UUID watchlistId) {
+    return toViews(findOwnedWatchlist(userId, watchlistId));
   }
 
-  /**
-   * @throws NoSuchElementException   if the watchlist does not exist
-   * @throws IllegalArgumentException if the instrument is unknown or already on the watchlist
-   */
-  public WatchlistItemView addItem(UUID watchlistId, UUID instrumentId, String notes, Integer priority) {
+  public WatchlistItemView addItem(UUID userId, UUID watchlistId, UUID instrumentId, String notes, Integer priority) {
     Objects.requireNonNull(instrumentId, "Instrument id cannot be null");
-    Watchlist watchlist = findOwnedWatchlist(watchlistId);
+    Watchlist watchlist = findOwnedWatchlist(userId, watchlistId);
     Instrument instrument = instrumentRepository.findById(instrumentId)
       .orElseThrow(() -> new IllegalArgumentException("Unknown instrument: " + instrumentId));
 
@@ -90,27 +76,27 @@ public class WatchlistService {
     return toView(item);
   }
 
-  /** @throws NoSuchElementException if the watchlist or the item does not exist */
-  public void removeItem(UUID watchlistId, UUID itemId) {
+  public void removeItem(UUID userId, UUID watchlistId, UUID itemId) {
     Objects.requireNonNull(itemId, "Item id cannot be null");
-    Watchlist watchlist = findOwnedWatchlist(watchlistId);
+    Watchlist watchlist = findOwnedWatchlist(userId, watchlistId);
     if (!watchlist.removeItem(itemId)) {
       throw new NoSuchElementException("Watchlist item not found: " + itemId);
     }
     watchlistRepository.update(watchlistId, watchlist);
   }
 
-  private Watchlist findOwnedWatchlist(UUID watchlistId) {
+  private Watchlist findOwnedWatchlist(UUID userId, UUID watchlistId) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     Objects.requireNonNull(watchlistId, "Watchlist id cannot be null");
-    UUID userId = currentUser().getId();
     return watchlistRepository.findById(watchlistId)
       .filter(watchlist -> watchlist.getUser().getId().equals(userId))
       .orElseThrow(() -> new NoSuchElementException("Watchlist not found: " + watchlistId));
   }
 
-  private User currentUser() {
-    return userRepository.findByUsername(DEFAULT_USERNAME)
-      .orElseGet(() -> userRepository.persist(User.create(DEFAULT_EMAIL, DEFAULT_USERNAME, null, null, "ACTIVE")));
+  private User loadUser(UUID userId) {
+    Objects.requireNonNull(userId, "User id cannot be null");
+    return userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalStateException("Unknown user: " + userId));
   }
 
   private List<WatchlistItemView> toViews(Watchlist watchlist) {
@@ -120,7 +106,7 @@ public class WatchlistService {
       .toList();
   }
 
-  // Only price is real (latest stored close); target, rating and ratios are placeholders until a data source exists.
+  // TODO: Only price is real (latest stored close); target, rating and ratios are placeholders until a data source exists.
   private WatchlistItemView toView(WatchlistItem item) {
     Instrument instrument = item.getInstrument().orElseThrow();
     String ticker = instrument.getTicker().orElse("");

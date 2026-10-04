@@ -8,5 +8,5 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "cdi", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface WatchlistItemDtoMapper {
 
-    WatchlistItemDto toDto(WatchlistItemView source);
+  WatchlistItemDto toDto(WatchlistItemView source);
 }

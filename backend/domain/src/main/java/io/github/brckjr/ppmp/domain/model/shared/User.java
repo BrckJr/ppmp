@@ -9,25 +9,37 @@ import java.util.UUID;
 
 public class User extends BaseModel {
 
+  public static final String STATUS_ACTIVE = "ACTIVE";
+
   private final String email;
   private final String username;
   private final String firstName;
   private final String lastName;
   private final String userStatus;
+  private final String passwordHash;
 
-  private User(String email, String username, String firstName, String lastName, String userStatus) {
+  private User(String email, String username, String firstName, String lastName, String userStatus, String passwordHash) {
     super();
     this.email = email;
     this.username = username;
     this.firstName = firstName;
     this.lastName = lastName;
     this.userStatus = userStatus;
+    this.passwordHash = passwordHash;
   }
 
   public static User create(String email, String username, String firstName, String lastName, String userStatus) {
     Objects.requireNonNull(email, "Email cannot be null");
     Objects.requireNonNull(username, "Username cannot be null");
-    return new User(email, username, firstName, lastName, userStatus);
+    return new User(email, username, firstName, lastName, userStatus, null);
+  }
+
+  /** Creates an active user that can log in with a password. */
+  public static User register(String email, String username, String passwordHash) {
+    Objects.requireNonNull(email, "Email cannot be null");
+    Objects.requireNonNull(username, "Username cannot be null");
+    Objects.requireNonNull(passwordHash, "Password hash cannot be null");
+    return new User(email, username, null, null, STATUS_ACTIVE, passwordHash);
   }
 
   public static User reconstitute(
@@ -38,9 +50,10 @@ public class User extends BaseModel {
       String username,
       String firstName,
       String lastName,
-      String userStatus
+      String userStatus,
+      String passwordHash
   ) {
-    return new User(id, createdAt, updatedAt, email, username, firstName, lastName, userStatus);
+    return new User(id, createdAt, updatedAt, email, username, firstName, lastName, userStatus, passwordHash);
   }
 
   private User(
@@ -51,7 +64,8 @@ public class User extends BaseModel {
       String username,
       String firstName,
       String lastName,
-      String userStatus
+      String userStatus,
+      String passwordHash
   ) {
     super(id, createdAt, updatedAt);
     this.email = email;
@@ -59,11 +73,15 @@ public class User extends BaseModel {
     this.firstName = firstName;
     this.lastName = lastName;
     this.userStatus = userStatus;
+    this.passwordHash = passwordHash;
   }
 
 
   // --- Domain Behaviors ---
 
+  public boolean isActive() {
+    return STATUS_ACTIVE.equals(userStatus);
+  }
 
   // --- Getters ---
   public String email() {
@@ -88,6 +106,10 @@ public class User extends BaseModel {
 
   public Optional<String> getLastName() {
     return Optional.ofNullable(lastName);
+  }
+
+  public Optional<String> getPasswordHash() {
+    return Optional.ofNullable(passwordHash);
   }
 
   public Optional<String> getUserStatus() {

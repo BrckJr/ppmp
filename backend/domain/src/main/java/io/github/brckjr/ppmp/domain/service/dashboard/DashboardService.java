@@ -6,11 +6,15 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @ApplicationScoped
 public class DashboardService {
 
-  public DashboardSummary getDashboard() {
+  public DashboardSummary getDashboard(UUID userId) {
+    Objects.requireNonNull(userId, "User id cannot be null");
+
     KpiMetrics kpis = new KpiMetrics(
         BigDecimal.ZERO,
         BigDecimal.ZERO,

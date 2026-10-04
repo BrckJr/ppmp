@@ -38,21 +38,22 @@ public class PortfolioService {
     this.instrumentPriceRepository = instrumentPriceRepository;
   }
 
-  public Holdings getHoldings() {
-    return new Holdings(buildHoldings());
+  public Holdings getHoldings(UUID userId) {
+    return new Holdings(buildHoldings(userId));
   }
 
-  public Optional<HoldingDetail> getHolding(String ticker) {
+  public Optional<HoldingDetail> getHolding(UUID userId, String ticker) {
     if (ticker == null || ticker.isBlank()) {
       return Optional.empty();
     }
     String normalizedTicker = normalizeTicker(ticker);
-    return buildHoldings().stream()
+    return buildHoldings(userId).stream()
       .filter(holding -> holding.ticker().equals(normalizedTicker))
       .findFirst();
   }
 
-  private List<HoldingDetail> buildHoldings() {
+  private List<HoldingDetail> buildHoldings(UUID userId) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     Map<String, Instrument> instruments = instrumentRepository.findAll().stream()
       .filter(instrument -> instrument.getTicker().isPresent())
       .collect(Collectors.toMap(
@@ -70,7 +71,7 @@ public class PortfolioService {
       ));
 
     Map<String, Position> positions = new HashMap<>();
-    transactionRepository.findAll().stream()
+    transactionRepository.findByUserId(userId).stream()
       .filter(PortfolioService::isTrade)
       .sorted(Comparator.comparing(Transaction::getTimestamp)
         .thenComparing(Transaction::getCreatedAt)

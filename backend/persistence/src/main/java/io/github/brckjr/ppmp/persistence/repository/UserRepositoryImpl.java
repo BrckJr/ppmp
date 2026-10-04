@@ -24,4 +24,12 @@ public class UserRepositoryImpl extends BaseRepositoryImpl<User, UserEntity> imp
             .findFirst()
             .map(mapper::toModel);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return jpaStreamer.stream(UserEntity.class)
+            .filter(entity -> entity.getEmail().equals(email))
+            .findFirst()
+            .map(mapper::toModel);
+    }
 }

@@ -3,8 +3,8 @@
 | Name | Description                                                                                                                                                                                    |
 |------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | portfolio | Main container for holdings which include transactions                                                                                                                                         |
-| transaction | Store every portfolio event; From here, one can derive holdings, average buy-in, P/L, cash balance, etc.                                                                                       |
-| user | Basic metadata about the users                                                                                                                                                                 |
+| transaction | Store every portfolio event, owned by exactly one user (`user_uuid`); From here, one can derive holdings, average buy-in, P/L, cash balance, etc.                                                                                       |
+| user | Basic metadata about the users and their login (`password_hash`, bcrypt; empty for users of an external identity provider)                                                                     |
 | instrument | Securities master table with one row per investable instrument: stock, ETF, bond, crypto, cash-like product, etc. Some transactions might not need an instrument like deposit, withdrawal, ... |
  | instrument_prices | Price history of each instrument, including daily open, low, high and closing prices as well as adjusted closing prices                                                                        | 
 
