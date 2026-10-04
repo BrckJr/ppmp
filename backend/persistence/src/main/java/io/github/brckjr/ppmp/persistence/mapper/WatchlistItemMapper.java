@@ -20,6 +20,9 @@ public interface WatchlistItemMapper extends BaseMapper<WatchlistItem, Watchlist
             return null;
         }
         return WatchlistItem.reconstitute(
+                entity.getId(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
                 instrumentMapper().toModel(entity.getInstrument()),
                 entity.getNotes(),
                 entity.getPriority()

@@ -9,6 +9,4 @@ import org.mapstruct.ReportingPolicy;
 public interface WatchlistItemDtoMapper {
 
     WatchlistItemDto toDto(WatchlistItemView source);
-
-    WatchlistItemView toDomain(WatchlistItemDto source);
 }

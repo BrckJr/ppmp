@@ -46,3 +46,9 @@ databaseChangeLog:
             referencedTableName: user
             referencedColumnNames: uuid
             constraintName: fk_watchlist_user_id
+
+        - addUniqueConstraint:
+            schemaName: ${ppmp.schema}
+            tableName: watchlist
+            columnNames: user_uuid, name
+            constraintName: uq_watchlist_user_name

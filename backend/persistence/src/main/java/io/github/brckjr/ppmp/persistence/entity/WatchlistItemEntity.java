@@ -14,7 +14,7 @@ public class WatchlistItemEntity extends BaseEntity {
     private WatchlistEntity watchlist;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "instrument_uuid", nullable = false)
     private InstrumentEntity instrument;
 

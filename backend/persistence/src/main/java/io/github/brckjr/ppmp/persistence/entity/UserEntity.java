@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "user", schema = "ppmp")
+@Table(name = "\"user\"", schema = "ppmp")
 public class UserEntity extends BaseEntity {
 
     @Size(max = 320)

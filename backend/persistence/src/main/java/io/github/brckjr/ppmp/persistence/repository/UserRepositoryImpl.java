@@ -4,15 +4,24 @@ import io.github.brckjr.ppmp.domain.model.shared.User;
 import io.github.brckjr.ppmp.domain.repository.UserRepository;
 import io.github.brckjr.ppmp.persistence.entity.UserEntity;
 import io.github.brckjr.ppmp.persistence.mapper.UserMapper;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-public class UserRepositoryImpl extends BaseRepositoryImpl<User, UserEntity> implements UserRepository {
+import java.util.Optional;
 
-    private final UserMapper mapper;
+@ApplicationScoped
+public class UserRepositoryImpl extends BaseRepositoryImpl<User, UserEntity> implements UserRepository {
 
     @Inject
     public UserRepositoryImpl(UserMapper mapper) {
         super(mapper, UserEntity.class);
-        this.mapper = mapper;
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return jpaStreamer.stream(UserEntity.class)
+            .filter(entity -> entity.getUsername().equals(username))
+            .findFirst()
+            .map(mapper::toModel);
     }
 }

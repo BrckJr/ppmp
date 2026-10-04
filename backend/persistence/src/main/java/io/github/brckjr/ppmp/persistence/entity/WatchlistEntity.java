@@ -12,7 +12,7 @@ import java.util.List;
 public class WatchlistEntity extends BaseEntity {
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_uuid", nullable = false)
     private UserEntity user;
 
@@ -25,7 +25,8 @@ public class WatchlistEntity extends BaseEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OrderBy("createdAt ASC")
     private List<WatchlistItemEntity> items = new ArrayList<>();
 
     // Helper method to ensure the back-reference (foreign key) is populated

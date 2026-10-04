@@ -2,8 +2,10 @@ package io.github.brckjr.ppmp.domain.model.shared;
 
 import io.github.brckjr.ppmp.domain.model.BaseModel;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class User extends BaseModel {
 
@@ -28,8 +30,35 @@ public class User extends BaseModel {
     return new User(email, username, firstName, lastName, userStatus);
   }
 
-  public static User reconstitute(String email, String username, String firstName, String lastName, String userStatus) {
-    return new User(email, username, firstName, lastName, userStatus);
+  public static User reconstitute(
+      UUID id,
+      OffsetDateTime createdAt,
+      OffsetDateTime updatedAt,
+      String email,
+      String username,
+      String firstName,
+      String lastName,
+      String userStatus
+  ) {
+    return new User(id, createdAt, updatedAt, email, username, firstName, lastName, userStatus);
+  }
+
+  private User(
+      UUID id,
+      OffsetDateTime createdAt,
+      OffsetDateTime updatedAt,
+      String email,
+      String username,
+      String firstName,
+      String lastName,
+      String userStatus
+  ) {
+    super(id, createdAt, updatedAt);
+    this.email = email;
+    this.username = username;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.userStatus = userStatus;
   }
 
 
