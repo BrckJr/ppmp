@@ -74,29 +74,35 @@ class WatchlistServiceTest {
   }
 
   @Test
-  void createsDefaultWatchlistOnFirstAccess() {
-    List<Watchlist> result = service.getWatchlists();
-
-    assertThat(result).hasSize(1);
-    assertThat(result.getFirst().getName()).isEqualTo("default watchlist");
-    assertThat(result.getFirst().getDescription()).contains("default watchlist");
-    assertThat(service.getWatchlists()).hasSize(1);
+  void startsWithoutWatchlists() {
+    assertThat(service.getWatchlists()).isEmpty();
   }
 
   @Test
   void createsWatchlistsWithUniqueNames() {
-    service.getWatchlists();
     Watchlist created = service.createWatchlist("Tech", "Tech stocks");
+    service.createWatchlist("Dividends", null);
 
-    assertThat(service.getWatchlists()).extracting(Watchlist::getName).containsExactly("default watchlist", "Tech");
+    assertThat(service.getWatchlists()).extracting(Watchlist::getName).containsExactly("Tech", "Dividends");
     assertThat(created.getDescription()).contains("Tech stocks");
     assertThatThrownBy(() -> service.createWatchlist(" tech ", null)).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> service.createWatchlist(" ", null)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
+  void deletesAnyWatchlist() {
+    Watchlist tech = service.createWatchlist("Tech", null);
+    service.addItem(tech.getId(), apple.getId(), null, null);
+
+    service.deleteWatchlist(tech.getId());
+
+    assertThat(service.getWatchlists()).isEmpty();
+    assertThatThrownBy(() -> service.deleteWatchlist(tech.getId())).isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
   void addsAndRemovesInstruments() {
-    UUID watchlistId = service.getWatchlists().getFirst().getId();
+    UUID watchlistId = service.createWatchlist("Tech", null).getId();
 
     WatchlistItemView view = service.addItem(watchlistId, apple.getId(), null, null);
 
@@ -111,7 +117,7 @@ class WatchlistServiceTest {
 
   @Test
   void rejectsDuplicatesUnknownInstrumentsAndUnknownWatchlists() {
-    UUID watchlistId = service.getWatchlists().getFirst().getId();
+    UUID watchlistId = service.createWatchlist("Tech", null).getId();
     service.addItem(watchlistId, apple.getId(), null, null);
 
     assertThatThrownBy(() -> service.addItem(watchlistId, apple.getId(), null, null)).isInstanceOf(IllegalArgumentException.class);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Star, Trash2, TrendingUp } from "lucide-react";
 import { PageHeader } from "../components/PageHeader";
 import { AddToWatchlistDialog } from "../components/AddToWatchlistDialog";
+import { DeleteWatchlistDialog } from "../components/DeleteWatchlistDialog";
 import { NewWatchlistDialog } from "../components/NewWatchlistDialog";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -35,6 +36,7 @@ export default function WatchlistPage() {
   const [loaded, setLoaded] = useState<{ watchlistId: string; items: WatchlistItemDto[] } | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [loadError, setLoadError] = useState(false);
+  const [loadedLists, setLoadedLists] = useState(false);
 
   useEffect(() => {
     document.title = "Watchlist — Meridian";
@@ -48,6 +50,7 @@ export default function WatchlistPage() {
         if (ignore) return;
         const lists = data ?? [];
         setWatchlists(lists);
+        setLoadedLists(true);
         setSelectedId((current) => (lists.some((w) => w.id === current) ? current : lists[0]?.id));
         setLoadError(false);
       })
@@ -86,6 +89,12 @@ export default function WatchlistPage() {
     setReloadKey((key) => key + 1);
   }
 
+  function handleWatchlistDeleted(id: string) {
+    // The selection falls back to the first remaining watchlist after the reload.
+    if (selectedId === id) setSelectedId(undefined);
+    setReloadKey((key) => key + 1);
+  }
+
   function handleItemAdded(watchlistId: string, item: WatchlistItemDto) {
     setLoaded((prev) => (prev?.watchlistId === watchlistId ? { watchlistId, items: [...prev.items, item] } : prev));
     setWatchlists((prev) => prev.map((w) => (w.id === watchlistId ? { ...w, itemCount: (w.itemCount ?? 0) + 1 } : w)));
@@ -111,6 +120,9 @@ export default function WatchlistPage() {
         subtitle={selected ? `${selected.name}${selected.description && selected.description !== selected.name ? ` — ${selected.description}` : ""}` : "Instruments you're tracking"}
         actions={
           <div className="flex gap-2">
+            {selected?.id && (
+              <DeleteWatchlistDialog key={selected.id} watchlist={selected} onDeleted={handleWatchlistDeleted} />
+            )}
             <NewWatchlistDialog onCreate={handleWatchlistCreated} />
             <AddToWatchlistDialog watchlists={watchlists} defaultWatchlistId={selectedId} onAdd={handleItemAdded} />
           </div>
@@ -134,7 +146,12 @@ export default function WatchlistPage() {
       )}
 
       {loadError && <p className="mb-4 text-sm text-destructive">Could not load the watchlist from the server.</p>}
-      {!isLoading && !loadError && items.length === 0 && (
+      {!loadError && loadedLists && watchlists.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          You don't have a watchlist yet. Use “New watchlist” to create one.
+        </p>
+      )}
+      {!isLoading && !loadError && selected && items.length === 0 && (
         <p className="text-sm text-muted-foreground">
           This watchlist is empty. Use “Add to watchlist” to search for instruments and add them.
         </p>

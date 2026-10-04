@@ -22,7 +22,7 @@ public interface WatchlistApi {
 
     @GET
     @Path("")
-    @Operation(summary = "List watchlists", description = "Lists all watchlists; the 'default watchlist' is created on first access")
+    @Operation(summary = "List watchlists", description = "Lists all watchlists")
     @APIResponse(responseCode = "200", description = "Success")
     List<WatchlistDto> getWatchlists();
 
@@ -32,6 +32,13 @@ public interface WatchlistApi {
     @APIResponse(responseCode = "200", description = "Created successfully", content = @Content(schema = @Schema(implementation = WatchlistDto.class)))
     @APIResponse(responseCode = "400", description = "Invalid payload or name already in use")
     WatchlistDto createWatchlist(@Valid WatchlistDto newWatchlist);
+
+    @DELETE
+    @Path("/{watchlistId}")
+    @Operation(summary = "Delete watchlist", description = "Deletes a watchlist including all of its items")
+    @APIResponse(responseCode = "204", description = "Deleted successfully")
+    @APIResponse(responseCode = "404", description = "Watchlist not found")
+    void deleteWatchlist(@PathParam("watchlistId") UUID watchlistId);
 
     @GET
     @Path("/{watchlistId}/items")

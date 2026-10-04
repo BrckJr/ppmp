@@ -46,19 +46,10 @@ public class WatchlistService {
     this.priceRepository = priceRepository;
   }
 
-  /** Lists the watchlists of the current user; the default watchlist is created on first access. */
+  /** Lists the watchlists of the current user, oldest first. */
   public List<Watchlist> getWatchlists() {
-    User user = currentUser();
-    List<Watchlist> watchlists = watchlistRepository.findByUserId(user.getId());
-    if (watchlists.isEmpty()) {
-      watchlists = List.of(watchlistRepository.persist(
-        Watchlist.create(user, Watchlist.DEFAULT_NAME, Watchlist.DEFAULT_NAME, null)));
-    }
-    return watchlists.stream()
-      .sorted(Comparator
-        .comparing((Watchlist w) -> !Watchlist.DEFAULT_NAME.equals(w.getName()))
-        .thenComparing(Watchlist::getCreatedAt)
-        .thenComparing(Watchlist::getId))
+    return watchlistRepository.findByUserId(currentUser().getId()).stream()
+      .sorted(Comparator.comparing(Watchlist::getCreatedAt).thenComparing(Watchlist::getId))
       .toList();
   }
 
@@ -71,6 +62,12 @@ public class WatchlistService {
       throw new IllegalArgumentException("A watchlist named '" + watchlist.getName() + "' already exists");
     }
     return watchlistRepository.persist(watchlist);
+  }
+
+  /** Deletes a watchlist including its items. @throws NoSuchElementException if it does not exist */
+  public void deleteWatchlist(UUID watchlistId) {
+    findOwnedWatchlist(watchlistId);
+    watchlistRepository.deleteById(watchlistId);
   }
 
   /** @throws NoSuchElementException if the watchlist does not exist */

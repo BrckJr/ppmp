@@ -8,8 +8,6 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 public final class Watchlist extends BaseModel {
-  public static final String DEFAULT_NAME = "default watchlist";
-
   private final User user;
   private final String name;
   private final String description;
