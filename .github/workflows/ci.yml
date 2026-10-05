@@ -47,6 +47,7 @@ jobs:
           name: openapi-spec
           path: temp-openapi
       - name: Move OpenAPI spec to backend target folder
+        working-directory: .
         run: |
           mkdir -p ../../backend/app/target/openapi
           mv temp-openapi/openapi.json ../../backend/app/target/openapi/openapi.json
