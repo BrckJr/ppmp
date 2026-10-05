@@ -32,7 +32,7 @@
         <immutables.version>2.12.0</immutables.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
-        <cloud-sql-socket-factory.version>1.25.2</cloud-sql-socket-factory.version>
+        <cloud-sql-socket-factory.version>1.30.0</cloud-sql-socket-factory.version>
         <jandex.version>3.1.6</jandex.version>
         <artifactregistry-maven-wagon.version>2.2.5</artifactregistry-maven-wagon.version>
         <spotbugs.version>4.8.6.1</spotbugs.version>
