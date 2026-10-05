@@ -49,8 +49,10 @@ jobs:
       - name: Move OpenAPI spec to backend target folder
         working-directory: .
         run: |
-          mkdir -p ../../backend/app/target/openapi
-          mv temp-openapi/openapi.json ../../backend/app/target/openapi/openapi.json
+          mkdir /home/runner/work/ppmp/ppmp/backend/app/target/openapi/
+          mv temp-openapi/openapi.json /home/runner/work/ppmp/ppmp/backend/app/target/openapi/openapi.json
+      - name: Debugging
+        run: cd /home/runner/work/ppmp/ppmp/backend/app/target/openapi | ls -a
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
