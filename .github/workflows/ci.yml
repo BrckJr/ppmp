@@ -39,27 +39,22 @@ jobs:
     defaults:
       run:
         working-directory: frontend/react
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Download OpenAPI spec
         uses: actions/download-artifact@v4
         with:
           name: openapi-spec
-          path: frontend/react
-
+          path: temp-openapi
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: frontend/react/package-lock.json
-
       - run: npm ci
       - run: npm run generate:api
       - run: npm run lint
       - run: npm run build
-
       - name: Verify the container image builds
         run: docker build .
 
