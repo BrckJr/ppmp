@@ -39,29 +39,27 @@ jobs:
     defaults:
       run:
         working-directory: frontend/react
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Download OpenAPI spec
         uses: actions/download-artifact@v4
         with:
           name: openapi-spec
-          path: temp-openapi
-      - name: Move OpenAPI spec to backend target folder
-        working-directory: .
-        run: |
-          mkdir /home/runner/work/ppmp/ppmp/backend/app/target/openapi/
-          mv temp-openapi/openapi.json /home/runner/work/ppmp/ppmp/backend/app/target/openapi/openapi.json
-      - name: Debugging
-        run: cd /home/runner/work/ppmp/ppmp/backend/app/target/openapi | ls -a
+          path: frontend/react
+
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
           cache-dependency-path: frontend/react/package-lock.json
+
       - run: npm ci
       - run: npm run generate:api
       - run: npm run lint
       - run: npm run build
+
       - name: Verify the container image builds
         run: docker build .
 
