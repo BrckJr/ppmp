@@ -26,15 +26,26 @@ jobs:
         run: mvn -B -f backend/pom.xml verify
       - name: Verify the container image builds
         run: docker build -f backend/Dockerfile backend
+      - name: Upload OpenAPI spec
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: backend/app/target/openapi/openapi.json
 
   frontend:
     name: Frontend lint, build
+    needs: backend
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend/react
     steps:
       - uses: actions/checkout@v4
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: ../../backend/app/target/openapi
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
