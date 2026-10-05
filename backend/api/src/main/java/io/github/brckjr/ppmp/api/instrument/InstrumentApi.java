@@ -22,6 +22,8 @@ import java.util.UUID;
 @Tag(name = "Instruments", description = "Known instruments and their price history")
 public interface InstrumentApi {
 
+  // TODO: Restrict the access to this API as only the web crawler shall be able to upload and update instruments
+
   @GET
   @Path("")
   @Operation(summary = "List instruments", description = "Retrieves known instruments with optional search, type filter and pagination")
@@ -31,7 +33,7 @@ public interface InstrumentApi {
     @QueryParam("type") @Parameter(description = "Filter by instrument type") String type,
     @QueryParam("limit") @DefaultValue("50") @Parameter(description = "Page size limit") int limit,
     @QueryParam("offset") @DefaultValue("0") @Parameter(description = "Pagination offset") int offset
-  );
+                                       );
 
   @GET
   @Path("/{id}")
@@ -57,7 +59,7 @@ public interface InstrumentApi {
     @PathParam("id") UUID id,
     @QueryParam("from") @Parameter(description = "Inclusive start date (ISO-8601)") LocalDate from,
     @QueryParam("to") @Parameter(description = "Inclusive end date (ISO-8601)") LocalDate to
-  );
+                                              );
 
   @GET
   @Path("/{id}/prices/latest")

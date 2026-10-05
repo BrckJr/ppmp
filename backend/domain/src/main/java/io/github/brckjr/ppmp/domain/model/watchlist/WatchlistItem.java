@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+// TODO: As soon as further data is available, refactor the service to use the WatchlistItem and not the view anymore!
 public class WatchlistItem extends BaseModel {
   private final Instrument instrument;
   private final String notes;
@@ -36,12 +37,12 @@ public class WatchlistItem extends BaseModel {
   }
 
   public static WatchlistItem reconstitute(
-      UUID id,
-      OffsetDateTime createdAt,
-      OffsetDateTime updatedAt,
-      Instrument instrument,
-      String notes,
-      Integer priority
+    UUID id,
+    OffsetDateTime createdAt,
+    OffsetDateTime updatedAt,
+    Instrument instrument,
+    String notes,
+    Integer priority
   ) {
     return new WatchlistItem(id, createdAt, updatedAt, instrument, notes, priority);
   }

@@ -1,0 +1,27 @@
+name: Deploy DEV
+
+# Every change on main is tested and rolled out to DEV (frontend + backend + database together).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: dev
+    permissions:
+      contents: read
+      id-token: write
+      deployments: write

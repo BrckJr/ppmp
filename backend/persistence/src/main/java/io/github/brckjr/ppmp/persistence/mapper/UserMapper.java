@@ -21,7 +21,8 @@ public interface UserMapper extends BaseMapper<User, UserEntity> {
                 entity.getUsername(),
                 entity.getFirstName(),
                 entity.getLastName(),
-                entity.getUserStatus()
+                entity.getUserStatus(),
+                entity.getPasswordHash()
         );
     }
 
@@ -39,6 +40,7 @@ public interface UserMapper extends BaseMapper<User, UserEntity> {
         entity.setFirstName(model.getFirstName().orElse(null));
         entity.setLastName(model.getLastName().orElse(null));
         entity.setUserStatus(model.getUserStatus().orElse(null));
+        entity.setPasswordHash(model.getPasswordHash().orElse(null));
         return entity;
     }
 
@@ -53,5 +55,6 @@ public interface UserMapper extends BaseMapper<User, UserEntity> {
         entity.setFirstName(model.getFirstName().orElse(null));
         entity.setLastName(model.getLastName().orElse(null));
         entity.setUserStatus(model.getUserStatus().orElse(null));
+        entity.setPasswordHash(model.getPasswordHash().orElse(null));
     }
 }

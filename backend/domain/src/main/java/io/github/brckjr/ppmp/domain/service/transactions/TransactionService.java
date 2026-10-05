@@ -28,11 +28,13 @@ public class TransactionService {
     this.instrumentRepository = instrumentRepository;
   }
 
-  public List<Transaction> getAllTransactions(TransactionType type, int limit, int offset) {
+  public List<Transaction> getAllTransactions(UUID userId, TransactionType type, int limit, int offset) {
     int normalizedLimit = Math.max(limit, 0);
     int normalizedOffset = Math.max(offset, 0);
 
-    return repository.findAll().stream()
+    Objects.requireNonNull(userId, "User id cannot be null");
+
+    return repository.findByUserId(userId).stream()
       .sorted(Comparator
         .comparing(Transaction::getTimestamp)
         .reversed()
@@ -44,12 +46,14 @@ public class TransactionService {
       .toList();
   }
 
-  public Optional<Transaction> getTransactionById(UUID id) {
+  public Optional<Transaction> getTransactionById(UUID userId, UUID id) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     Objects.requireNonNull(id, "Transaction id cannot be null");
-    return repository.findById(id);
+    return repository.findByIdAndUserId(id, userId);
   }
 
   public Transaction createTransaction(
+    UUID userId,
     OffsetDateTime timestamp,
     TransactionType type,
     UUID instrumentId,
@@ -69,13 +73,14 @@ public class TransactionService {
       instrument = instrumentRepository.findByTicker(normalized)
         .orElseThrow(() -> new IllegalArgumentException("Unknown instrument ticker: " + normalized));
     }
-    return repository.persist(Transaction.create(timestamp, type, instrument, unitPrice, quantity, grossAmount, currency, comment));
+    return repository.persist(Transaction.create(userId, timestamp, type, instrument, unitPrice, quantity, grossAmount, currency, comment));
   }
 
-  public boolean deleteTransaction(UUID id) {
+  public boolean deleteTransaction(UUID userId, UUID id) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     Objects.requireNonNull(id, "Transaction id cannot be null");
 
-    if (repository.findById(id).isEmpty()) {
+    if (repository.findByIdAndUserId(id, userId).isEmpty()) {
       return false;
     }
 
@@ -83,8 +88,8 @@ public class TransactionService {
     return true;
   }
 
-  public TransactionMetrics getTransactionMetrics(String period) {
-    List<Transaction> transactions = transactionsForPeriod(period);
+  public TransactionMetrics getTransactionMetrics(UUID userId, String period) {
+    List<Transaction> transactions = transactionsForPeriod(userId, period);
     Currency currency = transactions.stream()
       .max(Comparator
         .comparing(Transaction::getTimestamp)
@@ -108,9 +113,10 @@ public class TransactionService {
     return new TransactionMetrics(totalDividends, netCapitalInflow, totalVolume, currency);
   }
 
-  private List<Transaction> transactionsForPeriod(String period) {
+  private List<Transaction> transactionsForPeriod(UUID userId, String period) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     OffsetDateTime start = resolvePeriodStart(period);
-    return repository.findAll().stream()
+    return repository.findByUserId(userId).stream()
       .filter(transaction -> start == null || !transaction.getTimestamp().isBefore(start))
       .toList();
   }

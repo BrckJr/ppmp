@@ -3,6 +3,7 @@ package io.github.brckjr.ppmp.app.transactions;
 import io.github.brckjr.ppmp.api.transactions.TransactionApi;
 import io.github.brckjr.ppmp.api.transactions.dto.TransactionDto;
 import io.github.brckjr.ppmp.api.transactions.dto.TransactionMetricsDto;
+import io.github.brckjr.ppmp.app.auth.CurrentUser;
 import io.github.brckjr.ppmp.app.transactions.mapper.TransactionDtoMapper;
 import io.github.brckjr.ppmp.app.transactions.mapper.TransactionMetricsDtoMapper;
 import io.github.brckjr.ppmp.common.enums.TransactionType;
@@ -21,22 +22,24 @@ public class TransactionApp implements TransactionApi {
   private final TransactionService service;
   private final TransactionDtoMapper transactionDtoMapper;
   private final TransactionMetricsDtoMapper transactionMetricsDtoMapper;
+  private final CurrentUser currentUser;
 
   @Inject
-  public TransactionApp(TransactionService service, TransactionDtoMapper transactionDtoMapper, TransactionMetricsDtoMapper transactionMetricsDtoMapper) {
+  public TransactionApp(TransactionService service, TransactionDtoMapper transactionDtoMapper, TransactionMetricsDtoMapper transactionMetricsDtoMapper, CurrentUser currentUser) {
     this.service = service;
     this.transactionDtoMapper = transactionDtoMapper;
     this.transactionMetricsDtoMapper = transactionMetricsDtoMapper;
+    this.currentUser = currentUser;
   }
 
   @Override
   public List<TransactionDto> getAllTransactions(TransactionType type, int limit, int offset) {
-    return service.getAllTransactions(type, limit, offset).stream().map(transactionDtoMapper::toDto).toList();
+    return service.getAllTransactions(currentUser.id(), type, limit, offset).stream().map(transactionDtoMapper::toDto).toList();
   }
 
   @Override
   public TransactionDto getTransactionById(UUID id) {
-    return service.getTransactionById(id)
+    return service.getTransactionById(currentUser.id(), id)
       .map(transactionDtoMapper::toDto)
       .orElseThrow(() -> new NotFoundException("Transaction not found: " + id));
   }
@@ -45,6 +48,7 @@ public class TransactionApp implements TransactionApi {
   public TransactionDto createTransaction(TransactionDto newTransaction) {
     try {
       return transactionDtoMapper.toDto(service.createTransaction(
+        currentUser.id(),
         newTransaction.timestamp(),
         newTransaction.type(),
         newTransaction.instrumentId(),
@@ -62,7 +66,7 @@ public class TransactionApp implements TransactionApi {
 
   @Override
   public void deleteTransaction(UUID id) {
-    if (!service.deleteTransaction(id)) {
+    if (!service.deleteTransaction(currentUser.id(), id)) {
       throw new NotFoundException("Transaction not found: " + id);
     }
   }
@@ -70,7 +74,7 @@ public class TransactionApp implements TransactionApi {
   @Override
   public TransactionMetricsDto getTransactionMetrics(String period) {
     try {
-      return transactionMetricsDtoMapper.toDto(service.getTransactionMetrics(period));
+      return transactionMetricsDtoMapper.toDto(service.getTransactionMetrics(currentUser.id(), period));
 
     } catch (IllegalArgumentException ex) {
       throw new BadRequestException(ex.getMessage(), ex);

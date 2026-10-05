@@ -3,6 +3,7 @@ package io.github.brckjr.ppmp.app.watchlist;
 import io.github.brckjr.ppmp.api.watchlist.WatchlistApi;
 import io.github.brckjr.ppmp.api.watchlist.dto.WatchlistDto;
 import io.github.brckjr.ppmp.api.watchlist.dto.WatchlistItemDto;
+import io.github.brckjr.ppmp.app.auth.CurrentUser;
 import io.github.brckjr.ppmp.app.watchlist.mapper.WatchlistDtoMapper;
 import io.github.brckjr.ppmp.app.watchlist.mapper.WatchlistItemDtoMapper;
 import io.github.brckjr.ppmp.domain.service.watchlist.WatchlistService;
@@ -21,23 +22,25 @@ public class WatchlistApp implements WatchlistApi {
     private final WatchlistService service;
     private final WatchlistDtoMapper watchlistMapper;
     private final WatchlistItemDtoMapper itemMapper;
+    private final CurrentUser currentUser;
 
     @Inject
-    public WatchlistApp(WatchlistService service, WatchlistDtoMapper watchlistMapper, WatchlistItemDtoMapper itemMapper) {
+    public WatchlistApp(WatchlistService service, WatchlistDtoMapper watchlistMapper, WatchlistItemDtoMapper itemMapper, CurrentUser currentUser) {
         this.service = service;
         this.watchlistMapper = watchlistMapper;
         this.itemMapper = itemMapper;
+        this.currentUser = currentUser;
     }
 
     @Override
     public List<WatchlistDto> getWatchlists() {
-        return service.getWatchlists().stream().map(watchlistMapper::toDto).toList();
+        return service.getWatchlists(currentUser.id()).stream().map(watchlistMapper::toDto).toList();
     }
 
     @Override
     public WatchlistDto createWatchlist(WatchlistDto newWatchlist) {
         try {
-            return watchlistMapper.toDto(service.createWatchlist(newWatchlist.name(), newWatchlist.description()));
+            return watchlistMapper.toDto(service.createWatchlist(currentUser.id(), newWatchlist.name(), newWatchlist.description()));
         } catch (IllegalArgumentException ex) {
             throw new BadRequestException(ex.getMessage(), ex);
         }
@@ -46,7 +49,7 @@ public class WatchlistApp implements WatchlistApi {
     @Override
     public void deleteWatchlist(UUID watchlistId) {
         try {
-            service.deleteWatchlist(watchlistId);
+            service.deleteWatchlist(currentUser.id(), watchlistId);
         } catch (NoSuchElementException ex) {
             throw new NotFoundException(ex.getMessage(), ex);
         }
@@ -55,7 +58,7 @@ public class WatchlistApp implements WatchlistApi {
     @Override
     public List<WatchlistItemDto> getWatchlistItems(UUID watchlistId) {
         try {
-            return service.getItems(watchlistId).stream().map(itemMapper::toDto).toList();
+            return service.getItems(currentUser.id(), watchlistId).stream().map(itemMapper::toDto).toList();
         } catch (NoSuchElementException ex) {
             throw new NotFoundException(ex.getMessage(), ex);
         }
@@ -64,7 +67,7 @@ public class WatchlistApp implements WatchlistApi {
     @Override
     public WatchlistItemDto addWatchlistItem(UUID watchlistId, WatchlistItemDto newItem) {
         try {
-            return itemMapper.toDto(service.addItem(watchlistId, newItem.instrumentId(), null, null));
+            return itemMapper.toDto(service.addItem(currentUser.id(), watchlistId, newItem.instrumentId(), null, null));
         } catch (NoSuchElementException ex) {
             throw new NotFoundException(ex.getMessage(), ex);
         } catch (IllegalArgumentException ex) {
@@ -75,7 +78,7 @@ public class WatchlistApp implements WatchlistApi {
     @Override
     public void removeWatchlistItem(UUID watchlistId, UUID itemId) {
         try {
-            service.removeItem(watchlistId, itemId);
+            service.removeItem(currentUser.id(), watchlistId, itemId);
         } catch (NoSuchElementException ex) {
             throw new NotFoundException(ex.getMessage(), ex);
         }

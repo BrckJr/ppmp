@@ -32,6 +32,18 @@ public class UserEntity extends BaseEntity {
     @Column(name = "user_status", length = 10)
     private String userStatus;
 
+    @Size(max = 255)
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     public String getEmail() {
         return email;
     }

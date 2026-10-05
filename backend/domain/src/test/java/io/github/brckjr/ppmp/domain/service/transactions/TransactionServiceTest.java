@@ -20,6 +20,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TransactionServiceTest {
 
+  private static final UUID USER = UUID.randomUUID();
+  private static final UUID OTHER_USER = UUID.randomUUID();
+
   private InMemoryTransactionRepository repository;
   private TransactionService service;
   private InMemoryInstrumentRepository instruments;
@@ -38,7 +41,7 @@ class TransactionServiceTest {
     Transaction middle = repository.persist(transaction("2026-07-29T10:00:00Z", TransactionType.SELL, "AAPL", "50.00"));
     Transaction oldest = repository.persist(transaction("2026-07-28T10:00:00Z", TransactionType.DIVIDEND, "AAPL", "10.00"));
 
-    List<Transaction> page = service.getAllTransactions(null, 2, 1);
+    List<Transaction> page = service.getAllTransactions(USER, null, 2, 1);
 
     assertThat(page)
       .isNotNull()
@@ -55,7 +58,7 @@ class TransactionServiceTest {
     repository.persist(transaction(OffsetDateTime.now().minusWeeks(1), TransactionType.DIVIDEND, "AAPL", "15.00"));
     repository.persist(transaction(OffsetDateTime.now().minusYears(2), TransactionType.DIVIDEND, "AAPL", "999.00"));
 
-    TransactionMetrics metrics = service.getTransactionMetrics("1y");
+    TransactionMetrics metrics = service.getTransactionMetrics(USER, "1y");
 
     assertThat(metrics).isNotNull();
     assertThat(metrics.totalDividends()).isEqualByComparingTo("15.00");
@@ -71,13 +74,13 @@ class TransactionServiceTest {
     OffsetDateTime now = OffsetDateTime.now();
     BigDecimal ten = new BigDecimal("10");
 
-    Transaction created = service.createTransaction(now, TransactionType.BUY, known.getId(), null, ten, ten, ten, Currency.USD, null);
+    Transaction created = service.createTransaction(USER, now, TransactionType.BUY, known.getId(), null, ten, ten, ten, Currency.USD, null);
 
     assertThat(created.getInstrument()).contains(known);
     assertThat(created.getTicker()).isEqualTo("AAPL");
-    assertThatThrownBy(() -> service.createTransaction(now, TransactionType.BUY, UUID.randomUUID(), null, ten, ten, ten, Currency.USD, null))
+    assertThatThrownBy(() -> service.createTransaction(USER, now, TransactionType.BUY, UUID.randomUUID(), null, ten, ten, ten, Currency.USD, null))
       .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> service.createTransaction(now, TransactionType.BUY, null, null, ten, ten, ten, Currency.USD, null))
+    assertThatThrownBy(() -> service.createTransaction(USER, now, TransactionType.BUY, null, null, ten, ten, ten, Currency.USD, null))
       .isInstanceOf(IllegalArgumentException.class);
     assertThat(repository.count()).isEqualTo(1);
   }
@@ -88,10 +91,10 @@ class TransactionServiceTest {
     Instrument known = instruments.persist(instrument("AAPL"));
     BigDecimal ten = new BigDecimal("10");
 
-    Transaction created = service.createTransaction(OffsetDateTime.now(), TransactionType.BUY, null, " aapl ", ten, ten, ten, Currency.USD, null);
+    Transaction created = service.createTransaction(USER, OffsetDateTime.now(), TransactionType.BUY, null, " aapl ", ten, ten, ten, Currency.USD, null);
 
     assertThat(created.getInstrument()).contains(known);
-    assertThatThrownBy(() -> service.createTransaction(OffsetDateTime.now(), TransactionType.BUY, null, "NOPE", ten, ten, ten, Currency.USD, null))
+    assertThatThrownBy(() -> service.createTransaction(USER, OffsetDateTime.now(), TransactionType.BUY, null, "NOPE", ten, ten, ten, Currency.USD, null))
       .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -101,9 +104,24 @@ class TransactionServiceTest {
     Instrument known = instruments.persist(instrument("AAPL"));
 
     Transaction created = service.createTransaction(
-      OffsetDateTime.now(), TransactionType.DEPOSIT, known.getId(), null, null, null, new BigDecimal("10"), Currency.USD, null);
+      USER, OffsetDateTime.now(), TransactionType.DEPOSIT, known.getId(), null, null, null, new BigDecimal("10"), Currency.USD, null);
 
     assertThat(created.getInstrument()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Should never expose, aggregate or delete the transactions of another user")
+  void transactionsAreIsolatedPerUser() {
+    Transaction own = repository.persist(transaction("2026-07-30T10:00:00Z", TransactionType.DEPOSIT, null, "100.00"));
+    Transaction foreign = repository.persist(
+      transaction(OTHER_USER, OffsetDateTime.now(), TransactionType.DEPOSIT, null, "5000.00"));
+
+    assertThat(service.getAllTransactions(USER, null, 50, 0)).containsExactly(own);
+    assertThat(service.getTransactionById(USER, foreign.getId())).isEmpty();
+    assertThat(service.getTransactionMetrics(USER, "all").netCapitalInflow()).isEqualByComparingTo("100.00");
+    assertThat(service.deleteTransaction(USER, foreign.getId())).isFalse();
+    assertThat(repository.findById(foreign.getId())).isPresent();
+    assertThat(service.deleteTransaction(USER, own.getId())).isTrue();
   }
 
   private static Instrument instrument(String ticker) {
@@ -115,7 +133,12 @@ class TransactionServiceTest {
   }
 
   private static Transaction transaction(OffsetDateTime timestamp, TransactionType type, String ticker, String grossAmount) {
+    return transaction(USER, timestamp, type, ticker, grossAmount);
+  }
+
+  private static Transaction transaction(UUID userId, OffsetDateTime timestamp, TransactionType type, String ticker, String grossAmount) {
     return Transaction.create(
+      userId,
       timestamp,
       type,
       ticker == null ? null : instrument(ticker),
@@ -124,7 +147,7 @@ class TransactionServiceTest {
       new BigDecimal(grossAmount),
       Currency.USD,
       null
-    );
+                             );
   }
 
   private static final class InMemoryTransactionRepository implements TransactionRepository {
@@ -161,21 +184,60 @@ class TransactionServiceTest {
     public long count() {
       return store.size();
     }
+
+    @Override
+    public List<Transaction> findByUserId(UUID userId) {
+      return store.values().stream().filter(t -> t.getUserId().equals(userId)).toList();
+    }
+
+    @Override
+    public Optional<Transaction> findByIdAndUserId(UUID id, UUID userId) {
+      return findById(id).filter(t -> t.getUserId().equals(userId));
+    }
   }
 
   private static final class InMemoryInstrumentRepository implements InstrumentRepository {
     private final Map<UUID, Instrument> store = new LinkedHashMap<>();
 
-    @Override public Optional<Instrument> findById(UUID id) { return Optional.ofNullable(store.get(id)); }
-    @Override public List<Instrument> findAll() { return new ArrayList<>(store.values()); }
-    @Override public Instrument persist(Instrument dto) { store.put(dto.getId(), dto); return dto; }
-    @Override public Instrument update(UUID uuid, Instrument dto) { store.put(uuid, dto); return dto; }
-    @Override public void deleteById(UUID id) { store.remove(id); }
-    @Override public long count() { return store.size(); }
-    @Override public Optional<Instrument> findByTicker(String ticker) {
+    @Override
+    public Optional<Instrument> findById(UUID id) {
+      return Optional.ofNullable(store.get(id));
+    }
+
+    @Override
+    public List<Instrument> findAll() {
+      return new ArrayList<>(store.values());
+    }
+
+    @Override
+    public Instrument persist(Instrument dto) {
+      store.put(dto.getId(), dto);
+      return dto;
+    }
+
+    @Override
+    public Instrument update(UUID uuid, Instrument dto) {
+      store.put(uuid, dto);
+      return dto;
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+      store.remove(id);
+    }
+
+    @Override
+    public long count() {
+      return store.size();
+    }
+
+    @Override
+    public Optional<Instrument> findByTicker(String ticker) {
       return store.values().stream().filter(i -> i.getTicker().filter(ticker::equalsIgnoreCase).isPresent()).findFirst();
     }
-    @Override public Optional<Instrument> findByIsin(String isin) {
+
+    @Override
+    public Optional<Instrument> findByIsin(String isin) {
       return store.values().stream().filter(i -> i.getIsin().filter(isin::equalsIgnoreCase).isPresent()).findFirst();
     }
   }

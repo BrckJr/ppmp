@@ -9,6 +9,9 @@ import RiskPage from "./routes/risk";
 import PerformancePage from "./routes/performance";
 import HoldingsPage from "./routes/holdings";
 import HoldingsTickerPage from "./routes/holdings_ticker";
+import LoginPage from "./routes/login";
+import { AuthProvider } from "./lib/auth";
+import "./lib/api-client";
 import "./styles.css";
 
 const rootElement = document.getElementById("root");
@@ -19,7 +22,9 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
+      <AuthProvider>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route element={<RootLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
@@ -33,6 +38,7 @@ ReactDOM.createRoot(rootElement).render(
         </Route>
         <Route path="*" element={<div className="p-8">Page Not Found</div>} />
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

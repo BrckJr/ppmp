@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PortfolioServiceTest {
 
+  private static final UUID USER = UUID.randomUUID();
+
   @Test
   void derivesOpenPositionAndPerformanceFromBuysSellsAndLatestQuote() {
     InMemoryTransactionRepository transactions = new InMemoryTransactionRepository();
@@ -39,9 +41,9 @@ class PortfolioServiceTest {
     prices.persist(InstrumentPrice.create(instrument, LocalDate.parse("2026-01-03"), decimal("980"), decimal("990"), decimal("970"), decimal("985"), null, 100L, "USD", "late-import"));
 
     PortfolioService service = new PortfolioService(transactions, instruments, prices);
-    HoldingDetail holding = service.getHolding("exm").orElseThrow();
+    HoldingDetail holding = service.getHolding(USER, "exm").orElseThrow();
 
-    assertThat(service.getHoldings().holdings()).containsExactly(holding);
+    assertThat(service.getHoldings(USER).holdings()).containsExactly(holding);
     assertThat(holding.shares()).isEqualByComparingTo("8");
     assertThat(holding.costBasis()).isEqualByComparingTo("900");
     assertThat(holding.avgCost()).isEqualByComparingTo("112.5");
@@ -65,17 +67,37 @@ class PortfolioServiceTest {
         new InMemoryInstrumentPriceRepository()
     );
 
-    assertThat(service.getHoldings().holdings()).hasSize(1);
-    HoldingDetail holding = service.getHolding("OPEN").orElseThrow();
+    assertThat(service.getHoldings(USER).holdings()).hasSize(1);
+    HoldingDetail holding = service.getHolding(USER, "OPEN").orElseThrow();
     assertThat(holding.priceAvailable()).isFalse();
     assertThat(holding.price()).isNull();
     assertThat(holding.marketValue()).isNull();
     assertThat(holding.costBasis()).isEqualByComparingTo("20");
-    assertThat(service.getHolding("CLOSED")).isEmpty();
+    assertThat(service.getHolding(USER, "CLOSED")).isEmpty();
+  }
+
+  @Test
+  void ignoresTradesOfOtherUsers() {
+    InMemoryTransactionRepository transactions = new InMemoryTransactionRepository();
+    transactions.persist(transaction(UUID.randomUUID(), "2026-01-01T00:00:00Z", TransactionType.BUY, "SECRET", "5", "500"));
+
+    PortfolioService service = new PortfolioService(
+        transactions,
+        new InMemoryInstrumentRepository(),
+        new InMemoryInstrumentPriceRepository()
+    );
+
+    assertThat(service.getHoldings(USER).holdings()).isEmpty();
+    assertThat(service.getHolding(USER, "SECRET")).isEmpty();
   }
 
   private static Transaction transaction(String timestamp, TransactionType type, String ticker, String quantity, String grossAmount) {
+    return transaction(USER, timestamp, type, ticker, quantity, grossAmount);
+  }
+
+  private static Transaction transaction(UUID userId, String timestamp, TransactionType type, String ticker, String quantity, String grossAmount) {
     return Transaction.create(
+        userId,
         OffsetDateTime.parse(timestamp),
         type,
         Instrument.create(ticker, ticker, "USD", null, null, "US", "US", "TECHNOLOGY", "STOCK"),
@@ -131,6 +153,8 @@ class PortfolioServiceTest {
     @Override public Transaction update(UUID id, Transaction value) { return super.update(id, value); }
     @Override public void deleteById(UUID id) { super.deleteById(id); }
     @Override public long count() { return super.count(); }
+    @Override public List<Transaction> findByUserId(UUID userId) { return findAll().stream().filter(t -> t.getUserId().equals(userId)).toList(); }
+    @Override public Optional<Transaction> findByIdAndUserId(UUID id, UUID userId) { return findById(id).filter(t -> t.getUserId().equals(userId)); }
   }
 
   private static final class InMemoryInstrumentRepository extends InMemoryRepository<Instrument> implements InstrumentRepository {

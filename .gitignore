@@ -59,3 +59,8 @@ dist-ssr
 *.sln
 *.sw?
 
+
+# --- Terraform ---
+.terraform/
+*.tfstate*
+!infrastructure/terraform/**/backend.hcl

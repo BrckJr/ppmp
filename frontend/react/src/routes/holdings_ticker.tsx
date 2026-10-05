@@ -79,7 +79,7 @@ export default function HoldingDetailPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.9 0.015 245)" vertical={false} />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="oklch(0.5 0.03 255)" minTickGap={30} />
               <YAxis tick={{ fontSize: 11 }} stroke="oklch(0.5 0.03 255)" domain={["auto", "auto"]} tickFormatter={(v) => `€${v.toFixed(0)}`} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid oklch(0.9 0.015 245)", fontSize: 12 }} formatter={(v: number) => formatCurrencyPrecise(v)} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid oklch(0.9 0.015 245)", fontSize: 12 }} formatter={(v) => formatCurrencyPrecise(Number(v))} />
               <Line type="monotone" dataKey="price" stroke="oklch(0.28 0.08 260)" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>

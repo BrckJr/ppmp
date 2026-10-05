@@ -28,6 +28,9 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
+                  name: password_hash
+                  type: varchar(255)
+              - column:
                   name: first_name
                   type: varchar(255)
               - column:

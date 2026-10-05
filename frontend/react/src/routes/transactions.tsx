@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { cn } from "../lib/utils";
 import { formatCurrencyPrecise } from "../lib/portfolio-data";
 import { API_BASE_TRANSACTIONS as API_BASE } from "./routes";
+import { apiFetch } from "../lib/api-client";
 import type { TransactionType, TransactionDto, TransactionMetricsDto } from "../api/generated/types.gen";
 
 const TYPE_CONFIG: Record<TransactionType, { badgeStyle: string; isInflow: boolean }> = {
@@ -23,19 +24,19 @@ async function fetchTransactions(typeFilter?: string): Promise<TransactionDto[]>
   const url = typeFilter && typeFilter !== "all" 
     ? `${API_BASE}?type=${encodeURIComponent(typeFilter)}` 
     : API_BASE;
-  const res = await fetch(url);
+  const res = await apiFetch(url);
   if (!res.ok) throw new Error("Failed to fetch transactions");
   return res.json();
 }
 
 async function fetchMetrics(period = "ytd"): Promise<TransactionMetricsDto> {
-  const res = await fetch(`${API_BASE}/metrics?period=${period}`);
+  const res = await apiFetch(`${API_BASE}/metrics?period=${period}`);
   if (!res.ok) throw new Error("Failed to fetch transaction metrics");
   return res.json();
 }
 
 async function deleteTransactionApi(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+  const res = await apiFetch(`${API_BASE}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete transaction");
 }
 

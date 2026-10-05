@@ -1,7 +1,10 @@
-import { Outlet, Link, useNavigate } from "react-router";
+import { Navigate, Outlet, Link, useLocation, useNavigate } from "react-router";
+import { LogOut, User } from "lucide-react";
 
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { AppSidebar } from "../components/AppSidebar";
+import { Button } from "../components/ui/button";
+import { useAuth } from "../lib/auth";
 
 // 1. Move NotFoundComponent here as a fallback or export it for React Router use
 export function NotFoundComponent() {
@@ -58,6 +61,16 @@ export function ErrorComponent({ error, reset }: { error: Error; reset: () => vo
 
 // 3. The Core Layout Wrapper Component
 export default function RootLayout() {
+  const { user, status, logout } = useAuth();
+  const location = useLocation();
+
+  if (status === "loading") {
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading…</div>;
+  }
+  if (status === "anonymous" || !user) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -66,6 +79,16 @@ export default function RootLayout() {
           <header className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
             <span className="text-sm text-muted-foreground">Meridian / Portfolio</span>
+            <div className="ml-auto flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-foreground" title={user.email}>
+                <User className="h-4 w-4 text-muted-foreground" />
+                {user.username}
+              </span>
+              <Button size="sm" variant="outline" onClick={() => void logout()}>
+                <LogOut className="mr-1 h-4 w-4" />
+                Sign out
+              </Button>
+            </div>
           </header>
           <main className="flex-1 p-6">
             {/* React Router matches the nested URL path and handles viewport injection here */}

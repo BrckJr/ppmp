@@ -1,0 +1,130 @@
+name: Deploy (reusable)
+
+# Deploys database migrations, backend and frontend of one commit to one environment.
+#  - dev:  builds the images and pushes them to the DEV registry
+#  - prod: copies the already-built images from the DEV registry (promote: true), nothing is rebuilt
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      promote:
+        type: boolean
+        default: false
+      version:
+        description: Release tag, added as an additional image tag when promoting
+        type: string
+        default: ""
+
+env:
+  CLOUD_SQL_PROXY_VERSION: v2.14.3
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+      deployments: write
+    env:
+      PROJECT: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      NAME: ppmp-${{ inputs.environment }}
+      REGISTRY: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ppmp
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      # ---- Artifacts: build once on DEV, promote the same images to PROD ----
+      - uses: actions/setup-java@v4
+        if: ${{ !inputs.promote }}
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - uses: actions/setup-node@v4
+        if: ${{ !inputs.promote }}
+        with:
+          node-version: "24"
+
+      - name: Build and push images
+        if: ${{ !inputs.promote }}
+        run: |
+          mvn -B -f backend/pom.xml package -DskipTests
+          docker build -f backend/Dockerfile -t "$REGISTRY/backend:$TAG" backend
+          docker build -t "$REGISTRY/frontend:$TAG" frontend/react
+          docker push "$REGISTRY/backend:$TAG"
+          docker push "$REGISTRY/frontend:$TAG"
+
+      - name: Promote images from DEV
+        if: ${{ inputs.promote }}
+        env:
+          SOURCE_REGISTRY: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.DEV_GCP_PROJECT_ID }}/ppmp
+        run: |
+          for image in backend frontend; do
+            # Registry-to-registry copy, the digest stays identical to what was tested on DEV
+            docker buildx imagetools create \
+              -t "$REGISTRY/$image:$TAG" -t "$REGISTRY/$image:${{ inputs.version }}" \
+              "$SOURCE_REGISTRY/$image:$TAG"
+          done
+
+      # ---- Database ----
+      - name: Migrate database
+        run: |
+          curl -fsSLo cloud-sql-proxy \
+            "https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/${CLOUD_SQL_PROXY_VERSION}/cloud-sql-proxy.linux.amd64"
+          chmod +x cloud-sql-proxy
+          ./cloud-sql-proxy --port 5432 "${PROJECT}:${REGION}:${NAME}-db" &
+          for i in $(seq 1 30); do (echo > /dev/tcp/127.0.0.1/5432) 2>/dev/null && break; sleep 1; done
+
+          DB_PASSWORD="$(gcloud secrets versions access latest --secret="${NAME}-db-password")"
+          echo "::add-mask::$DB_PASSWORD"
+          mvn -B -f database/pom.xml liquibase:update \
+            -Dpostgresdb.url=jdbc:postgresql://127.0.0.1:5432/ppmp \
+            -Dpostgresdb.user=ppmp-bot \
+            -Dpostgresdb.password="$DB_PASSWORD"
+
+      # ---- Applications (backend first: it is what the frontend proxies to) ----
+      - name: Deploy backend
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.NAME }}-backend
+          region: ${{ env.REGION }}
+          image: ${{ env.REGISTRY }}/backend:${{ env.TAG }}
+
+      - name: Deploy frontend
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.NAME }}-frontend
+          region: ${{ env.REGION }}
+          image: ${{ env.REGISTRY }}/frontend:${{ env.TAG }}
+
+      # ---- Verification ----
+      - name: Smoke test
+        run: |
+          URL="$(gcloud run services describe "${NAME}-frontend" --region "$REGION" --format='value(status.url)')"
+          echo "Frontend: $URL"
+          check() {
+            for i in $(seq 1 12); do
+              [ "$(curl -s -o /dev/null -w '%{http_code}' "$1")" = "200" ] && { echo "OK $1"; return 0; }
+              sleep 10
+            done
+            echo "::error::$1 did not return 200"; return 1
+          }
+          check "$URL/"
+          # Goes through the frontend proxy to the backend and includes the database health check
+          check "$URL/api/q/health/ready"

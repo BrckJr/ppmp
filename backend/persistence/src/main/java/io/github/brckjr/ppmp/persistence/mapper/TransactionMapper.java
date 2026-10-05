@@ -23,6 +23,7 @@ public interface TransactionMapper extends BaseMapper<Transaction, TransactionEn
         entity.getId(),
         entity.getCreatedAt(),
         entity.getUpdatedAt(),
+        entity.getUserId(),
         entity.getTimestamp(),
         entity.getTransactionType(),
         instrumentMapper().toModel(entity.getInstrument()),
@@ -43,6 +44,7 @@ public interface TransactionMapper extends BaseMapper<Transaction, TransactionEn
     entity.setId(model.getId());
     entity.setCreatedAt(model.getCreatedAt());
     entity.setUpdatedAt(model.getUpdatedAt());
+    entity.setUserId(model.getUserId());
     entity.setInstrument(instrumentMapper().toEntity(model.getInstrument().orElse(null)));
     entity.setTransactionType(model.getTransactionType());
     entity.setTimestamp(model.getTimestamp());

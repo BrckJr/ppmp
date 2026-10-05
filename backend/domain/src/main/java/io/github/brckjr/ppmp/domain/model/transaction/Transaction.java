@@ -13,6 +13,7 @@ import java.util.UUID;
 
 public class Transaction extends BaseModel {
 
+  private final UUID userId;
   private final OffsetDateTime timestamp;
   private final TransactionType transactionType;
   private final Instrument instrument;
@@ -23,6 +24,7 @@ public class Transaction extends BaseModel {
   private final String comment;
 
   private Transaction(
+      UUID userId,
       OffsetDateTime timestamp,
       TransactionType transactionType,
       Instrument instrument,
@@ -33,6 +35,7 @@ public class Transaction extends BaseModel {
       String comment
   ) {
     super();
+    this.userId = userId;
     this.timestamp = timestamp;
     this.transactionType = transactionType;
     this.instrument = instrument;
@@ -47,6 +50,7 @@ public class Transaction extends BaseModel {
       UUID id,
       OffsetDateTime createdAt,
       OffsetDateTime updatedAt,
+      UUID userId,
       OffsetDateTime timestamp,
       TransactionType transactionType,
       Instrument instrument,
@@ -57,6 +61,7 @@ public class Transaction extends BaseModel {
       String comment
   ) {
     super(id, createdAt, updatedAt);
+    this.userId = userId;
     this.timestamp = timestamp;
     this.transactionType = transactionType;
     this.instrument = instrument;
@@ -68,6 +73,7 @@ public class Transaction extends BaseModel {
   }
 
   public static Transaction create(
+      UUID userId,
       OffsetDateTime timestamp,
       TransactionType transactionType,
       Instrument instrument,
@@ -77,6 +83,7 @@ public class Transaction extends BaseModel {
       Currency currency,
       String comment
   ) {
+    Objects.requireNonNull(userId, "User id cannot be null");
     Objects.requireNonNull(timestamp, "Timestamp cannot be null");
     Objects.requireNonNull(currency, "Currency cannot be null");
     Objects.requireNonNull(grossAmount, "Gross Amount cannot be null");
@@ -102,13 +109,14 @@ public class Transaction extends BaseModel {
         throw new IllegalArgumentException("Unit price must be positive for buy and sell transactions");
       }
     }
-    return new Transaction(timestamp, transactionType, instrument, unitPrice, quantity, grossAmount, currency, comment);
+    return new Transaction(userId, timestamp, transactionType, instrument, unitPrice, quantity, grossAmount, currency, comment);
   }
 
   public static Transaction reconstitute(
       UUID id,
       OffsetDateTime createdAt,
       OffsetDateTime updatedAt,
+      UUID userId,
       OffsetDateTime timestamp,
       TransactionType transactionType,
       Instrument instrument,
@@ -121,6 +129,7 @@ public class Transaction extends BaseModel {
     Objects.requireNonNull(id, "Id cannot be null");
     Objects.requireNonNull(createdAt, "CreatedAt cannot be null");
     Objects.requireNonNull(updatedAt, "UpdatedAt cannot be null");
+    Objects.requireNonNull(userId, "User id cannot be null");
     Objects.requireNonNull(timestamp, "Timestamp cannot be null");
     Objects.requireNonNull(currency, "Currency cannot be null");
     Objects.requireNonNull(grossAmount, "Gross Amount cannot be null");
@@ -129,6 +138,7 @@ public class Transaction extends BaseModel {
         id,
         createdAt,
         updatedAt,
+        userId,
         timestamp,
         transactionType,
         instrument,
@@ -144,6 +154,10 @@ public class Transaction extends BaseModel {
 
 
   // --- Getters ---
+
+  public UUID getUserId() {
+    return userId;
+  }
 
   public Optional<Instrument> getInstrument() {
     return Optional.ofNullable(instrument);

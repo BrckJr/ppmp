@@ -8,10 +8,14 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "transaction", schema = "ppmp")
 public class TransactionEntity extends BaseEntity {
+
+  @Column(name = "user_uuid")
+  private UUID userId;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "instrument_uuid")
@@ -44,6 +48,14 @@ public class TransactionEntity extends BaseEntity {
   @Size(max = 255)
   @Column(name = "comment")
   private String comment;
+
+  public UUID getUserId() {
+    return userId;
+  }
+
+  public void setUserId(UUID userId) {
+    this.userId = userId;
+  }
 
   public InstrumentEntity getInstrument() {
     return instrument;
