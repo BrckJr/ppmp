@@ -45,7 +45,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: openapi-spec
-          path: ../../backend/app/target/openapi
+          path: temp-openapi
+      - name: Move OpenAPI spec to backend target folder
+        run: |
+          mkdir -p ../../backend/app/target/openapi
+          mv temp-openapi/openapi.json ../../backend/app/target/openapi/openapi.json
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
