@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: openapi-spec
-          path: temp-openapi
+          path: frontend/react
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
