@@ -56,7 +56,7 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         if: ${{ !inputs.promote }}
         with:
           node-version: "24"
