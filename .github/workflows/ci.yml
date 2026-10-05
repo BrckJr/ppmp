@@ -27,7 +27,7 @@ jobs:
       - name: Verify the container image builds
         run: docker build -f backend/Dockerfile backend
       - name: Upload OpenAPI spec
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: openapi-spec
           path: backend/app/target/openapi/openapi.json
