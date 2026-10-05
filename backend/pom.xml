@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- External -->
-        <quarkus.version>3.27.2</quarkus.version>
+        <quarkus.version>3.40.1</quarkus.version>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
         <jpastreamer.version>3.0.3.Final</jpastreamer.version>
         <immutables.version>2.12.0</immutables.version>
