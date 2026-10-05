@@ -19,7 +19,7 @@
 - **Maven 3.9+**
 - **Docker** (for local deployment)
 - **PostgreSQL** (or use Docker)
-- **AWS RDS** active and running
+- A reachable PostgreSQL (see ../infrastructure/README.md for the GCP Cloud SQL set-up)
 
 ## Quickstart
 

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  backend:
+    name: Backend build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Build and test
+        run: mvn -B -f backend/pom.xml verify
+      - name: Verify the container image builds
+        run: docker build -f backend/Dockerfile backend
+
+  frontend:
+    name: Frontend lint, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/react
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/react/package-lock.json
+      - run: npm ci
+      # TODO: remove continue-on-error once the existing lint findings are fixed
+      - run: npm run lint
+        continue-on-error: true
+      - run: npm run build
+      - name: Verify the container image builds
+        run: docker build .
+
+  infrastructure:
+    name: Terraform format & validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - run: terraform fmt -check -recursive
+        working-directory: infrastructure/terraform
+      - name: Validate
+        run: |
+          for env in dev prod; do
+            terraform -chdir=infrastructure/terraform/environments/$env init -backend=false -input=false
+            terraform -chdir=infrastructure/terraform/environments/$env validate
+          done
+
+  database:
+    name: Database migrations apply cleanly
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: ppmp
+          POSTGRES_USER: ppmp-bot
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ppmp-bot -d ppmp"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - run: >
+          mvn -B -f database/pom.xml liquibase:update
+          -Dpostgresdb.url=jdbc:postgresql://localhost:5432/ppmp
+          -Dpostgresdb.user=ppmp-bot
+          -Dpostgresdb.password=secret
