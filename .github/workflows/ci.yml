@@ -16,7 +16,7 @@ jobs:
     name: Backend build & test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -40,7 +40,7 @@ jobs:
       run:
         working-directory: frontend/react
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Download OpenAPI spec
         uses: actions/download-artifact@v7
         with:
@@ -91,7 +91,7 @@ jobs:
           --health-cmd "pg_isready -U ppmp-bot -d ppmp"
           --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
