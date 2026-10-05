@@ -41,6 +41,7 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/react/package-lock.json
       - run: npm ci
+      - run: npm run generate:api
       - run: npm run lint
       - run: npm run build
       - name: Verify the container image builds
