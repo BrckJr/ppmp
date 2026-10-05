@@ -31,7 +31,7 @@
         <jpastreamer.version>3.0.3.Final</jpastreamer.version>
         <immutables.version>2.12.0</immutables.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <jetbrains.annotations.version>26.0.2</jetbrains.annotations.version>
+        <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
         <cloud-sql-socket-factory.version>1.25.2</cloud-sql-socket-factory.version>
         <jandex.version>3.1.6</jandex.version>
         <artifactregistry-maven-wagon.version>2.2.5</artifactregistry-maven-wagon.version>
