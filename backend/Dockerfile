@@ -1,5 +1,5 @@
 # Expects the Quarkus fast-jar produced by `mvn -f backend/pom.xml package` (CI builds it once).
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:24-jre-alpine
 
 RUN addgroup -S ppmp && adduser -S ppmp -G ppmp
 WORKDIR /app
